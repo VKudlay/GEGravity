@@ -1,0 +1,162 @@
+---
+title: "GE_Gravity Logic and Testing"
+output: html_document
+---
+
+```{r setup, echo=FALSE}
+library(GEGravity)
+```
+
+So, we just discussed all of the logic behind it, so let us just run the example normally and get the data.
+
+# Running The Algorithm 
+
+```{r, echo=FALSE}
+library(alpaca)  # Needed for partial coefficients
+```
+
+#### Pre-Processing
+```{r}
+# Foreign trade subset
+f_trade <- TradeData0014[TradeData0014$exporter != TradeData0014$importer,]
+```
+
+```{r}
+# Normalize trade data to unit interval
+f_trade$trade <- f_trade$trade / max(f_trade$trade)
+
+# classify FEs for components to be absorbed (finding variable interactions)
+f_trade$exp_year <- interaction(f_trade$expcode, f_trade$year)
+f_trade$imp_year <- interaction(f_trade$impcode, f_trade$year)
+f_trade$pair     <- interaction(f_trade$impcode, f_trade$expcode)
+
+# Fit generalized linear model based on specifications
+partials <- feglm(
+  formula = trade ~ eu_enlargement + other_fta | exp_year + imp_year + pair, 
+  data    = f_trade, 
+  family  = poisson()
+)$coefficient  # We just need the coefficients for computation
+```
+
+```{r}
+# Sort trade matrix to make it easier to find imp/exp pairs
+t_trade <- TradeData0014[order(
+  TradeData0014$exporter, 
+  TradeData0014$importer, 
+  TradeData0014$year
+),]
+
+t_trade$eu_effect <- NA      # This creates new column eu_effect
+
+i <- 1
+# Effect of EU entrance on country based on partial, if entry happened
+invisible(by(t_trade, list(t_trade$expcode, t_trade$impcode), function(row) { 
+  
+  # This is an effective boolean; was this a new EU pair created within time span?
+  is_new_eu_pair <- tail(row$eu_enlargement, 1) - head(row$eu_enlargement, 1)
+
+  # If it was, give it the computed partial eu_enlargement coefficient; if not, leave it unset
+  t_trade[i, "eu_effect"] <<- is_new_eu_pair * partials[1]
+  
+  i <<- i + nrow(row)         # Increment index to start at the next imp/exp pair
+  
+}))
+
+# Data to be finally fed to the function; only subset with eu_effect will be used
+data <- t_trade[t_trade$year == 2000,]   # In example, 1892 Entries, 5676 removed
+head(data)
+```
+
+#### Running Actual Computations
+
+```{r}
+w_mult = ge_gravity(
+  exp_id = data$expcode,    # Origin country associated with each observation
+  imp_id = data$impcode,    # Destination country associated with each observation
+  flows  = data$trade,      # Observed trade flows in the data for the year being used as the baseline
+  beta   = data$eu_effect,  # “Partial” change in trade, obtained as coefficient from gravity estimation
+  theta  = 4,               # Trade elasticity
+  mult   = TRUE,            # 
+  data   = data
+)
+
+w_o_mult = ge_gravity(
+  exp_id = data$expcode,    # Origin country associated with each observation
+  imp_id = data$impcode,    # Destination country associated with each observation
+  flows  = data$trade,      # Observed trade flows in the data for the year being used as the baseline
+  beta   = data$eu_effect,  # “Partial” change in trade, obtained as coefficient from gravity estimation
+  theta  = 4,                # Trade elasticity
+  mult   = FALSE,           # Assume trade balance is an additive component of national expenditure
+  data   = data
+)
+```
+
+#### Final results without multiplication parameter
+
+```{r}
+head(w_o_mult)
+```
+
+#### Final results with multiplication parameter
+
+```{r}
+head(w_mult)
+```
+
+***
+
+# Comparison with Stata Counterpart
+
+As mentioned, this package is intended to mimic the functionality of the Stata package of the same name, so we will do a quick comparison of this data relative to the same computation from the Stata counterpart. 
+
+Before running comparisons, we need to slightly modify the results data to sync with our new format.
+
+```{r}
+# Notice that the Stata counterpart returned all years with a sparse 
+# selection labeled with computed values. Ours just returns the new data 
+# by default or tags it onto the data provided in the `data` parameter.
+
+# To make it sync, just extract a year.
+results <- TradeData0014_Results[TradeData0014_Results$year == 2000, ]
+head(results)
+```
+
+#### Comparison of w_eu from results to the welfare w/o multiplier
+```{r}
+plot(x = results$w_eu, y = w_o_mult$welfare, log = "xy")
+abline(coef = c(0,1))
+
+for(i in ((1:10) + floor(runif(1, 0, length(results$w_eu)/4 - 10))))
+  print(paste(i, results$w_eu[i], w_o_mult$welfare[i]))
+message("Max difference: ", max(abs(results$w_eu - w_o_mult$welfare)))
+```
+
+#### Comparison of w_mult from results to the welfare with multiplier
+```{r}
+plot(x = results$w_mult, y = w_mult$welfare, log = "xy")
+abline(coef = c(0,1))
+
+for(i in (1:10) + floor(runif(1, 0, length(results$w_eu) - 10)))
+  print(paste(i, results$w_mult[i], w_mult$welfare[i]))
+message("Max difference: ", max(abs(results$w_mult - w_mult$welfare)))
+```
+
+#### Comparing results of new X w/o multiplier option
+```{r}
+plot(x = results$X_eu, y = w_o_mult$X_eu, log = "xy")
+abline(coef = c(0,1))
+
+for(i in (1:10) + floor(runif(1, 0, length(results$w_eu - 10))))
+  print(paste(i, results$X_eu[results$year == 2000][i], w_o_mult$X_eu[i]))
+message("Max difference: ", max(abs(results$X_eu - w_o_mult$X_eu)))
+```
+
+#### Comparing results of new X with multiplier option
+```{r}
+plot(x = results$X_mult, y = w_mult$X_eu, log = "xy")
+abline(coef = c(0,1))
+
+for(i in (1:10) + floor(runif(1, 0, length(results$w_eu) - 10)))
+  print(paste(i, results$X_mult[i], w_mult$X_eu[i]))
+message("Max difference: ", max(abs(results$X_mult - w_mult$X_eu)))
+```

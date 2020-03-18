@@ -1,0 +1,104 @@
+---
+title: "GE_Gravity Example"
+output: html_document
+---
+
+```{r setup, echo=FALSE}
+library(GEGravity)
+```
+
+This example RMD uses the example data \code{TradeData0014}. The data set consists of a panel of 44 countries trading with one another over the years 2000-2014. The trade data uses aggregated trade flows based on [WIOD](http://www.wiod.org/database/wiots16) and information on FTAs is from the [NSF-Kellogg database](https://sites.nd.edu/jeffrey-bergstrand/database-on-economic-integration-agreements/) maintained by Scott Baier and Jeff Bergstrand. To find out more about the trade flows, consider checking out ["An Illustrated User Guide to the World Input-Output Database: The Case of Global Automotive Production" published by Timmer, Dietzenbacher, Los, Stehrer, and de Vries, Review of International Economics, 2015](https://www.researchgate.net/publication/274731196_An_Illustrated_User_Guide_to_the_World_Input-Output_Database_The_Case_of_Global_Automotive_Production).
+
+
+```{r}
+head(TradeData0014)
+```
+
+Suppose the researcher wishes to use this data set to quantify general equilibrium trade and welfare effects of the EU enlargements that took place between 2000-2014. To first obtain the partial effects of these enlargements on trade flows, a PPML (Poisson pseudo-maximum likelihood) gravity specification may be used. Specifically, to obtain the "partial" estimates of the effects of EU enlargements on trade, we can use the following three-way gravity specification: 
+
+$$X_{ijt} = \exp\bigg[\ln(\alpha_{it}) + \ln(\alpha_{jt}) + \ln(\alpha_{ij}) + \beta \cdot FTA_{ijt}\bigg] + e_{ijt}$$
+
+The Stata equivalent of this package uses the ppmlhdfe command created by Correia, Guimarães, & Zylkin (2019) to achieve this. In our example, we will use the [alpaca library](https://cran.r-project.org/web/packages/alpaca/index.html) by Amrei Stammann and Daniel Czarnowske ORCID to do the same via the \code{feglm} (Fixed-Effect Generalized Linear Model) function.
+
+```{r}
+library(alpaca)  # Needed for partial coefficients
+
+# Generate foreign trade subset
+f_trade <- TradeData0014[TradeData0014$exporter != TradeData0014$importer,]             
+
+# Normalize trade data to unit interval
+f_trade$trade <- f_trade$trade / max(f_trade$trade)
+
+# classify FEs for components to be absorbed (finding variable interactions)
+f_trade$exp_year <- interaction(f_trade$expcode, f_trade$year)
+f_trade$imp_year <- interaction(f_trade$impcode, f_trade$year)
+f_trade$pair     <- interaction(f_trade$impcode, f_trade$expcode)
+
+# Fit generalized linear model based on specifications
+partials <- feglm(
+  formula = trade ~ eu_enlargement + other_fta | exp_year + imp_year + pair, 
+  data    = f_trade, 
+  family  = poisson()
+)$coefficient  # We just need the coefficients for computation
+
+print(round(partials, 3))
+```
+
+In addition to estimating the effects of EU enlargements on new EU pairs, this example also controls for any other FTAs signed during the period. Each of these variables is coded as a dummy variable that becomes 1 when the agreement goes into effect for a given pair. The estimated coefficient for \code{eu_enlargements} is 0.224, implying that the expansion of the EU had an average partial effect of $e^{0.224} − 1 = 25.1\%$ on trade between new EU members and existing members. With clustered standard errors, this estimate is statistically significant at the $p < .01$ significance level.
+
+***
+
+Further pre-processing is needed. Specifically, the function needs to get a series 
+of importer/exporter pairs with their appropriate impacts of joining the EU, 
+which is either the the eu_enlargement partial computed above or 0 (because they didn't join). 
+To obtain the general equilibrium effects of these new additions to the EU (as of 2000) 
+
+```{r}
+# Sort matrix to make it easier to find imp/exp pairs
+t_trade <- TradeData0014[order(
+  TradeData0014$exporter, 
+  TradeData0014$importer, 
+  TradeData0014$year),
+]
+
+t_trade$eu_effect <- NA      # This creates new column eu_effect
+
+i <- 1
+# Effect of EU entrance on country based on partial, if entry happened
+invisible(by(t_trade, list(t_trade$expcode, t_trade$impcode), function(row) { 
+  
+  # This is an effective boolean; was this a new EU pair created within time span?
+  is_new_eu_pair <- tail(row$eu_enlargement, 1) - head(row$eu_enlargement, 1)
+
+  # If it was, give it the computed partial eu_enlargement coefficient; if not, leave it unset
+  t_trade[i, "eu_effect"] <<- is_new_eu_pair * partials[1]
+  
+  i <<- i + nrow(row)         # Increment index to start at the next imp/exp pair
+}))
+
+# Data to be finally fed to the function; only subset with eu_effect will be used
+data <- t_trade[t_trade$year == 2000,]   # In example, 1892 Entries, 5676 removed
+
+head(data)
+```
+
+So now, we have data, so we should be able to run the function as follows: 
+
+```{r}
+head(ge_gravity(
+  exp_id = data$expcode,    # Origin country associated with each observation
+  imp_id = data$impcode,    # Destination country associated with each observation
+  flows  = data$trade,      # Observed trade flows in the data for the year being used as the baseline
+  beta   = data$eu_effect,  # “Partial” change in trade, obtained as coefficient from gravity estimation
+  theta  = 4,               # Trade elasticity
+  mult   = FALSE,           # Assume trade balance is an additive component of national expenditure
+  data   = data
+))
+```
+
+
+This assumes a standard trade elasticity value of $\theta = 4$. The input for \code{beta} is given by a variable called \code{eu_effect}, which in this case is equal to 0.224 for new EU pairs formed during the period and equal to 0 otherwise. Because of the small size of the sample, it solves almost instantly. Unsurprisingly, the new EU members (Bulgaria, Croatia, Czech Republic, Estonia, Hungary, Latvia, Lithuania, Malta, Poland, Romania, Slovakia, and Slovenia) realize the largest welfare gains from their joining the EU, with existing EU countries also gaining. All countries not included in the agreement experience small losses due to trade diversion, with the largest losses accruing to Russia.
+
+We can also change how trade imbalances enter the model. The default (exibited above with mult = FALSE) is to assume that they enter expenditure additively (i.e., $E_j = Y_j + D_j$), but one can also change the model so that expenditure is instead a fixed multiple of income (i.e., let $E_j = \delta_j Y_j$.) by setting \code{mult = TRUE}. While using multiplicative imbalances instead of additive balances changes the results slightly, they are still qualitatively very similar.
+
+An important point about the above exercises is that the initial partial effect is estimated with some uncertainty. The GE results that were calculated may paint a misleading picture because they do not take this uncertainty into account. For this reason, it is considered good practice to use a bootstrap method to construct confidence intervals for the GE calculations. This type of procedure is easily coded using ge_gravity. 

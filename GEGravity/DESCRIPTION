@@ -1,0 +1,23 @@
+Package: GEGravity
+Type: Package
+Title: General Equilibrium Effect Estimator
+Version: 0.1.0
+Authors@R: c(
+  person("Tom",   "Zylkin", email = "tzylkin@richmond.edu",      role = c("aut", "cre")),
+  person("Vadim", "Kudlay", email = "vadim.kudlay@richmond.edu", role = c("aut")))
+Description: 
+  This package solves for general equilibrium effects of changes in trade policies using 
+  a one sector Armington-CES trade model. It uses a simple fixed point algorithm that allows for 
+  fast computation and is ideal for bootstrapping confidence intervals for general equilibrium 
+  simulations based on prior gravity estimates of FTAs or other similar variables. Note that this 
+  package is directly associated with the ge_gravity Stata package and has been commissioned with 
+  the appreciated support of the UK Department for Digital, Culture, Media & Sport. 
+License: GPL-3
+Depends: 
+  R (>= 2.10),
+  utils
+Suggests: 
+  alpaca
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.0

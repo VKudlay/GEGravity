@@ -1,0 +1,354 @@
+---
+title: "GE_Gravity Logic"
+output: html_document
+---
+
+```{r setup, echo=FALSE}
+library(GEGravity)
+```
+
+# Program Execution
+
+In example.Rmd, we obtained the following preprocessed data: 
+
+```{r}
+library(alpaca)  # Needed for partial coefficients
+
+# Generate foreign trade subset
+f_trade <- TradeData0014[TradeData0014$exporter != TradeData0014$importer,]             
+f_trade$trade <- f_trade$trade / max(f_trade$trade)
+
+# classify FEs for components to be absorbed (finding variable interactions)
+f_trade$exp_year <- interaction(f_trade$expcode, f_trade$year)
+f_trade$imp_year <- interaction(f_trade$impcode, f_trade$year)
+f_trade$pair     <- interaction(f_trade$impcode, f_trade$expcode)
+
+# Fit generalized linear model based on specifications
+partials <- feglm(
+  formula = trade ~ eu_enlargement + other_fta | exp_year + imp_year + pair, 
+  data    = f_trade, 
+  family  = poisson()
+)$coefficient  # We just need the coefficients for computation
+
+# Sort matrix to make it easier to find imp/exp pairs
+t_trade <- TradeData0014[order(TradeData0014$exporter, TradeData0014$importer, TradeData0014$year),]
+t_trade$eu_effect <- NA      # This creates new column eu_effect
+
+i <- 1
+# Effect of EU entrance on country based on partial, if entry happened
+invisible(by(t_trade, list(t_trade$expcode, t_trade$impcode), function(row) { 
+  # This is an effective boolean; was this a new EU pair created within time span?
+  is_new_eu_pair <- tail(row$eu_enlargement, 1) - head(row$eu_enlargement, 1)
+  # If it was, give it the computed partial eu_enlargement coefficient; if not, leave it unset
+  t_trade[i, "eu_effect"] <<- is_new_eu_pair * partials[1]
+  
+  i <<- i + nrow(row)         # Increment index to start at the next imp/exp pair
+}))
+
+# Data to be finally fed to the function; only subset with eu_effect will be used
+data <- t_trade[t_trade$year == 2000,]   # In example, 1892 Entries, 5676 removed
+
+head(data)
+```
+
+Then, we ran the ge_gravity function: 
+
+```{r}
+head(ge_gravity(
+  exp_id = data$expcode,    # Origin country associated with each observation
+  imp_id = data$impcode,    # Destination country associated with each observation
+  flows  = data$trade,      # Observed trade flows in the data for the year being used as the baseline
+  beta   = data$eu_effect,  # “Partial” change in trade, obtained as coefficient from gravity estimation
+  theta  = 4,               # Trade elasticity
+  mult   = FALSE,           # Assume trade balance is an additive component of national expenditure
+  data   = data
+), 10)
+```
+
+Instead of calling the function, let's assume that we have the variables set as following:
+
+```{r}
+exp_id <- data$expcode
+imp_id <- data$impcode
+flows  <- data$trade
+beta   <- data$eu_effect
+theta  <- 4
+mult   <- FALSE
+```
+
+In the following, we are going to trace and test the algorithm as if it were being called. 
+
+As an assumption:
+- $i$ indices are defined for each origin/exporter, and matrices enumerable by them are Nx1 matrices. Sums for all $i$ are generally defined by colSums 
+- $j$ indices are defined for each destination/importer, and matrices enumerable by them are 1xN matrices. Sums for all $j$ are generally defined by rowSums 
+- Column- and Row-wise summations will be done explicitly, and R's vector math operations will not be assumed to facilitate it.
+
+To be safe and explanatory, we will also define a few functions: 
+- Typesafe function \code{ts} that can verify that our initial dimensions hold and that no $\texttt{NA}$ values are introduced.
+- Sanity function \code{sanity} that will make sure that a vector/matrix does not change cardinality illogically.
+- \code{printHead} just to be lazy and show only a tiny subset of data without much code.
+
+```{r}
+printHead <- function(Vec, rows = 6, cols = 6) {
+  print(Vec[1:min(rows, nrow(Vec)), 1:min(cols, ncol(Vec))])
+}
+
+ts <- function(Vec, Val, line = "?") {
+  if (dim(Vec)[1] != dim(Val)[1] && dim(Vec)[2] != dim(Val)[2]) {
+    warning(paste(" > Assigned vector has improper dimensions on line", line, "\n"))
+    message("Assigning value: \n")
+    printHead(Val)
+    message("To Value: \n")
+    printHead(Vec)
+    if (readline() == "q") return()
+  }
+  if (anyNA(Val)) {
+    warning(paste(" > Assigned vector has NAs on line", line, "\n"))
+    printHead(Val)
+    if (readline() == "q") return()
+  }
+  return(Val)
+}
+
+sanity <- function(name, Vec, dstr) {
+  message(" > Sanity Check: ")
+  for (i in 1:length(Vec))
+    message("  - dim(", name[i], ") = ", 
+      dim(Vec[[i]])[1], " x ", dim(Vec[[i]])[2], 
+      " (defined for ", dstr[i], ")"
+    )
+}
+```
+
+Let us first set up the set of international trade flows matrix, $X_{ij}$ (w/ $i$ exporting to $j$). This is just the set of flows arranged in an exporter (rows) by importer (columns) fashion.
+
+```{r}
+X   <- flows
+n   <- sqrt(length(X))        # Length of row or column of trade matrix
+X   <- t(matrix(flows, n, n)) # Square the matrix
+printHead(X)
+```
+
+Then, set ${\texttt B} \ (= e^{\beta})$ to be the matrix of partial effects. 
+Notice that the diagonal must be set to 0.
+
+```{r}
+B <- beta
+dim(B)  <- c(n, n) # Format B to have K.n columns
+diag(B) <- 0       # Set diagonal to 0 (this is required and is corrected if found)
+B <- exp(B)
+printHead(B)
+```
+
+Now, we can set up some more variables:
+
+- Let $E_j$ be the Total National Expendatures for country $j$ such that $E_j \equiv \sum_i X_{ij}$.
+
+- Let $Y_j$ be the Total Labor Income for country $i$ such that $Y_i \equiv w_iL_j = \sum_j X_{ij}$.
+
+- Let $D_j$ be the National Trade Deficit for country $j$ such that $D_j \equiv E_j - Yj$.
+
+```{r}
+# Set up Y, E, D vectors; calculate trade balances
+E <- matrix(colSums(X), n, 1) # Total National Expendatures; Value of import for all origin
+Y <- matrix(rowSums(X), n, 1) # Total Labor Income; Value of exports for all destinations;
+D <- E - Y                    # D: National trade deficit / surplus
+
+sanity(c("E","Y","D"), list(E, Y, D), c("j","j","j"))
+```
+
+Then we set up the $\pi_{ij}$ matrix of bilateral trade shares such that $\pi_{ij} = X_{ij}/E_{j}$:
+
+```{r}
+# set up pi_ij matrix of trade shares; pi_ij = X_ij/E_j
+Pi <- X / kronecker(t(E), matrix(1,n,1))  # Bilateral trade share
+sanity(c("X"), list(X), c("i and j"))
+```
+
+Now, we are almost done. In this model, we want to build up:
+
+- The change in price levels in each country $\hat{P_j}$ for all importers. 
+
+- The Gross Estimate General Welfare $\hat{W}_{j}$ for all importers.
+
+- The Gross Estimate Trade Impact $\hat{X}_{ij}$ between all importers and exporters.
+
+The iterative algorithm provided will build these up iteratively, starting them off as 1-column matrices.
+
+```{r}
+w_hat <- P_hat <- matrix(1, n, 1)   # Containers for running w_hat and P_hat
+X_new <- X                          # Container for updated X
+sanity(c("w_hat", "P_hat"), list(w_hat, P_hat), c("i", "i"))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+***
+
+# Loop Processes
+
+#### Step 1: Update $\hat{w}_i$ for all origins using formula:
+
+$$\widehat{w}_{i} =\left[Y_{i}^{-1}\sum_{j}\frac{\pi_{ij}\cdot e^{\beta\times FTA_{ij}}}{\widehat{P}_{j}^{-\theta}}\cdot E_{j}^{\prime}\right]^{\frac{1}{1+\theta}}\quad\forall i.$$
+
+```{r}
+eqn_base <- ((Pi * B) %*% (E / P_hat)) / Y
+w_hat    <- ts(w_hat, eqn_base^(1/(1+theta)))
+```
+
+#### Step 2: Normalize so total world output stays the same:
+$\sum_{i}Y_{i}\widehat{w}_{i}=\sum_{i}Y_{i}$.
+
+```{r}
+w_hat <- ts(w_hat, w_hat * (sum(Y) / sum(Y*w_hat)))
+```
+
+#### Step 3: Update 
+$\widehat{P}_{j}^{-\theta}=\left[\sum_{k}\pi_{kj}\widehat{w}_{k}^{-\theta}e^{b\times FTA_{kj}}\right] \forall \ j$.
+
+```{r}
+P_hat <- ts(P_hat, (t(Pi) * t(B)) %*% (w_hat^(-theta)))
+```
+
+#### Step 4: Update 
+$E_{j}^{\prime}=Y_{j}\widehat{w}_{j}+D_{j} \ \forall \ j$. 
+
+```{r}
+if (mult) {
+  E = ts(E, (Y + D) * w_hat)
+} else {
+  # default is to have additive trade imbalances
+  E = ts(E, Y * w_hat + D)
+}
+```
+
+#### Calculate new trade shares (to verify convergence)
+
+```{r}
+p1 <- (Pi * B)
+p2 <- kronecker((w_hat^(-theta)), matrix(1,1,n)) 
+p3 <- kronecker(t(P_hat), matrix(1,n,1))
+
+Pi_new <- ts(Pi, p1 * p2 / p3)
+
+X_new <- ts(X, Pi_new * kronecker(t(E), matrix(1,n,1)))
+```
+
+From there, we just need a way to check convergence to a steady-state, so let's put it all together: 
+
+```{r}
+# Initialize w_i_hat = P_j_hat = 1
+w_hat <- P_hat <- matrix(1, n, 1)    # Wi = Ei/Pi
+
+# While Loop Initializations
+X_new     <- X         # Container for updated X
+crit      <- 1         # Convergence testing value
+curr_iter <- 0         # Current number of iterations
+max_iter  <- 1000000   # Maximum number of iterations
+tol       <- .00000001 # Threshold before sufficient convergence
+
+# B = i x j
+# D = 1 x j
+# E = 1 x j
+# w_hat = P_hat = i x 1
+# Y = E = D = i x 1
+
+repeat { # Event Loop (using repeat to simulate do-while)
+
+  X_last_step <- X_new
+
+  #### Step 1: Update w_hat_i for all origins:
+  eqn_base <- ((Pi * B) %*% (E / P_hat)) / Y
+  w_hat    <- eqn_base^(1/(1+theta))
+
+  #### Step 2: Normalize so total world output stays the same
+  w_hat <- w_hat * (sum(Y) / sum(Y*w_hat))
+
+  #### Step 3: update P_hat_j
+  P_hat <- (t(Pi) * t(B)) %*% (w_hat^(-theta))
+
+  #### Step 4: Update $E_j$
+  if (mult) {
+    E <- (Y + D) * w_hat
+  } else {
+    E <- Y * w_hat + D  # default is to have additive trade imbalances
+  }
+
+  #### Calculate new trade shares (to verify convergence)
+  p1 <- (Pi * B)
+  p2 <- kronecker((w_hat^(-theta)), matrix(1,1,n))
+  p3 <- kronecker(t(P_hat), matrix(1,n,1))
+  Pi_new <- p1 * p2 / p3
+
+  X_new <- t(Pi_new * kronecker(t(E), matrix(1,n,1)))
+
+  # Compute difference to see if data converged
+  crit = max(c(abs(log(X_new) - log(X_last_step))), na.rm = TRUE)
+  curr_iter <- curr_iter + 1
+
+  if(crit <= tol || curr_iter >= max_iter)
+    break
+}
+```
+
+From here, we can just aggregate statistics, based in part with the formulas:
+
+$$
+\begin{alignat}{1}
+\textbf{GE Welfare Impact}:\quad & \widehat{W}_{i}=\widehat{E}_{i}/\widehat{P}_{i}\\ \\
+\textbf{GE Real Wage Impact}:\quad & \widehat{rw}_{ij}=\widehat{w}_{i}/\widehat{P}_{i},\\
+\textbf{GE Trade Impact}:\quad & \widehat{X}_{ij}=\frac{\widehat{w}_{i}^{-\theta}e^{\beta\times FTA_{ij}}}{\widehat{P}_{j}^{-\theta}}\cdot\widehat{E}_{j}
+\end{alignat}
+$$
+
+```{r}
+# Post welfare effects and new trade values
+dim(X_new) <- c(n*n, 1)
+
+# Real wage impact
+real_wage  <- w_hat / (P_hat)^(-1/theta)
+# real_wage <- (diag(Pi_new) / diag(Pi))^(-1/theta)  # (ACR formula)
+
+# Welfare impact
+if (mult) {
+  welfare <- real_wage
+} else {
+  welfare <- ((Y * w_hat) + D) / (Y+D) / (P_hat)^(-1/theta)
+}
+
+# Kronecker w/ this creates n dupes per dataset in column to align with X matrix
+kron_base <- matrix(1, n, 1)
+
+welfare     <- kronecker(welfare, kron_base)
+real_wage   <- kronecker(real_wage, kron_base)
+nom_wage    <- kronecker(w_hat, kron_base)
+
+price_index <- kronecker(((P_hat)^(-1/theta)), kron_base)
+```
+
+And then, we can just return them:
+
+```{r}
+# Build and return the final list
+data_out <- data
+
+data_out$X_eu        <- X_new
+data_out$welfare     <- welfare
+data_out$real_wage   <- real_wage
+data_out$nom_wage    <- nom_wage
+data_out$price_index <- price_index
+
+head(data_out)
+```

@@ -1,0 +1,225 @@
+---
+title: "GE_Gravity Theory"
+output: html_document
+---
+
+```{r setup, echo=FALSE}
+library(GEGravity)
+```
+
+# Background
+As a typical application, consider the following model for international trade flows:
+$$X_{ij} =\frac{A_{i}w_{i}^{-\theta}\tau_{ij}^{-\theta}}{\sum_{k}A_{k}w_{k}^{-\theta}\tau_{kj}^{-\theta}}E_{j}$$
+
+$X_{ij}$ are international trade flows. $i$ and $j$ are indices
+for origin and destination. $E_{j} \equiv \sum_{i}X_{ij}$ is total
+expenditure (also equal to the sum of the value of shipments across
+all origins). $A_{i}$ is a measure of the level of technology in
+each origin $i$, $w_{i}$ is the production cost, and $\tau_{ij} > 1$
+is an iceberg trade cost. The model assumes that goods received from
+different origins are imperfectly substitutable and that the degree
+of substitutability is governed by $\theta > 0$, which serves as a
+trade elasticity. Labor, $L_{i}$, is assumed to be the only factor
+of production. Trade imbalances, treated as exogenously given, are
+accounted for as an additive component of expenditure. Thus, we can
+also write national expenditure as the sum of labor income and the
+national trade deficit/surplus: $E_{j} = w_{j}L_{j} + D_{j}$.
+
+To obtain the \emph{partial} effects of changes in trade policies
+on trade (i.e., holding all wages fixed), a standard approach is to
+estimate using structural gravity. For example, if we have a panel of 
+trading countries and we want to know the "average partial effect" 
+of FTAs on trade, we can estimate the following "three-way" gravity regression:
+
+$$X_{ijt} =\exp\left[\ln\alpha_{it}+\ln\alpha_{jt}+\ln\alpha_{ij}+\beta\times FTA_{ijt}\right]+e_{ijt},$$
+
+As discussed in Yotov, Piermartini, Monteiro, & Larch (2016), the estimated $\beta$
+from this specification tells us how much trade would increase on
+average between any pair of countries that sign an FTA if we hold
+fixed all the endogenous variables in the model. Or, put in more structural
+terms, it tells us the direct trade impact of the reduction in trade
+barriers associated with an FTA: $\beta=-\theta\Delta\ln\tau_{ijt}$.
+
+However, often the real goal is to compute \emph{general equilibrium}
+changes in real wages, welfare, and/or trade volumes as a result of
+a change in trade frictions. In general equilibrium, the value of
+a country's shipments across all destinations must add up to its labor
+income ($Y_{i} \equiv w_{i}L_{i} = \sum_{j}X_{ij}.$) In other words,
+we must have that
+
+$$w_{i}L_{i} =\sum_{j}
+\frac{A_{i}w_{i}^{-\theta}\tau_{ij}^{-\theta}}
+     {\sum_{k}A_{k}w_{k}^{-\theta}\tau_{kj}^{-\theta}}
+\left(w_{j}L_{j}+D_{j}\right) \quad \forall i.$$
+
+This equation pins down each country's wages (subject to a normalization)
+as a function of how easily it can sell to markets with high levels
+of demand. Similarly, notice that we can express the effective price
+level in each country, $P_{j} \equiv \left[\sum_{k}A_{k}w_{k}^{-\theta}\tau_{kj}^{-\theta}\right]^{-1/\theta}$,
+as a function of how easily a country can buy from producers with
+high technology levels and low production costs. These linkages are
+both intuitive and general; they can be found in many different trade
+models typically used for GE analysis.
+
+A useful point about the system of equations in wages
+is that it can be solved in "changes" (as opposed to solving it
+in levels). Adopting the notation of Dekle, Eaton, & Kortum (2007),
+let a "hat" over a variable denote the change in that variable
+resulting from a policy change (e.g., $\widehat{w}_{i}\equiv w_{i}^{\prime}/w_{i}$
+gives the change in $i$'s wage level.) Noting that $\widehat{\tau}_{ij}^{-\theta}=e^{\beta\times FTA_{ij}}$,
+the "equilibrium in changes" version of wages can
+be written as:
+
+$$Y_{i}\widehat{w}_{i} = 
+\widehat{w}_{i}^{-\theta}
+\sum_{j}\frac{\pi_{ij}\cdot e^{\beta \times FTA_{ij}}}
+             {\widehat{P}_{j}^{-\theta}}
+\cdot\left(Y_{j}\widehat{w}_{j} + D_{j}\right) \quad\forall i$$,
+
+where $\pi_{ij}\equiv X_{ij}/E_{j}$ is a bilateral trade share and
+$\widehat{P}_{j}\equiv\left[\sum_{k}\pi_{kj}\widehat{w}_{k}^{-\theta}e^{\beta\times FTA_{kj}}\right]^{-1/\theta}$
+describes the change in price levels in each country. Notice this
+equation can be solved without knowledge of technology levels, endowments,
+initial trade frictions, or initial wages. All that is needed are
+trade volumes, national output and expenditure levels, and a value
+for the trade elasticity $\theta$.
+
+Once changes in wages are known, GE changes in welfare, real wages,
+and trade volumes are given respectively by:
+$$
+\begin{alignat}{1}
+\textbf{GE Welfare Impact}:\quad & \widehat{W}_{i}=\widehat{E}_{i}/\widehat{P}_{i}\\ \\
+\textbf{GE Real Wage Impact}:\quad & \widehat{rw}_{ij}=\widehat{w}_{i}/\widehat{P}_{i},\\
+\textbf{GE Trade Impact}:\quad & \widehat{X}_{ij}=\frac{\widehat{w}_{i}^{-\theta}e^{\beta\times FTA_{ij}}}{\widehat{P}_{j}^{-\theta}}\cdot\widehat{E}_{j}
+\end{alignat}
+$$
+where the change in national expenditure, $\widehat{E}_{i}$, is given
+by $(Y_{i}\widehat{w}_{i} + D_{i}) / E_{i}$. Because trade volumes are
+nominal quantities, there is one normalization needed. For this, the
+algorithm assumes that total world output is the same across both
+the baseline and the counterfactual (i.e., $\sum_{i}Y_{i}\widehat{w}_{i} = \sum_{i}Y_{i}$.)
+The precise method used to solve the model is described further below.
+
+
+# Algorithm 
+
+While there are several ways to solve for counterfactuals in the above
+model, the simplest approach is arguably a fixed point algorithm that
+repeatedly iterates on the equilibrium conditions of the model. There
+are numerous ways to implement such an algorithm, but the approach
+used in Baier, Yotov, & Zylkin (2019) is especially simple to program.
+We first initialize $\widehat{w}_{i}=\widehat{P}_{i}^{-\theta}=1$
+$\forall i$ and $E_{i}^{\prime}=E_{i}$$\forall i$. The iteration
+loop then requires only 4 steps:
+
+1. Update $\widehat{w}_{i}$ $\forall$ $i$ one time using
+$$\widehat{w}_{i} = \left[Y_{i}^{-1}\sum_{j}\frac{\pi_{ij}\cdot e^{\beta\times FTA_{ij}}}{\widehat{P}_{j}^{-\theta}}\cdot E_{j}^{\prime}\right]^{\frac{1}{1+\theta}}\quad\forall i.$$
+
+2. Normalize all wages so that world output stays fixed: $\sum_{i}Y_{i}\widehat{w}_{i}=\sum_{i}Y_{i}$.
+
+3. Update $\widehat{P}_{j}^{-\theta}=\left[\sum_{k}\pi_{kj}\widehat{w}_{k}^{-\theta}e^{b\times FTA_{kj}}\right]$
+$\forall$ $j$.
+
+4. Update $E_{j}^{\prime}=Y_{j}\widehat{w}_{j}+D_{j}$ $\forall$ $j$. 
+- (Repeat steps 1-4 until convergence.)
+
+
+This algorithm is very similar to one previously made available by
+Head & Mayer (2014), but takes a slightly more streamlined
+approach to updating wages in step 1. It should generally be very
+fast because it does not involve using a nonlinear solver.
+
+
+
+
+# Advisory
+
+This is an advanced technique that requires a basic understanding
+of the model being solved. I would recommend reading either Section
+4.3 of Head & Mayer (2014) or Ch. 2 of Yotov, Piermartini, Monteiro, 
+& Larch (2016) before implementing.
+
+One common issue that researchers new to these methods should be aware
+of is that GE trade models require a "square" data set with information
+on internal trade flows in addition to data on international trade
+flows. In the model, these internal flows are denoted by $X_{ii}$.
+If `ge_gravity` detects that the variable given for \emph{flows
+}does not include one or more $X_{ii}$ terms, it will exit with an
+error. Not all publicly available trade data sets include internal
+trade values. But some that do include [WIOD](http://www.wiod.org/home),
+[Eora MRIO](https://worldmrio.com/), and the data set made available
+by [UNCTAD](https://vi.unctad.org/tpa/index.html) as part of
+their online course on trade policy analysis (see Yotov, Piermartini, 
+Monteiro, & Larch, 2016.)
+
+Depending on interest, future versions could feature additional options 
+such as allowances for tariff revenues and/or multiple sectors. If you 
+believe you have found an error that can be replicated, or have other 
+suggestions for improvements, please feel free to \
+[contact me](mailto:tomzylkin@gmail.com).
+
+
+
+
+# Acknowledgements
+
+The basic idea of using fixed point iteration to solve the gravity model 
+has previously been implemented in Stata by Head & Mayer (2014) and Anderson, 
+Larch, & Yotov (2015).
+
+
+
+
+# Suggested citation
+
+If you are using this command in your research, I would appreciate
+if you would cite 
+
+- Baier, Scott L., Yoto V. Yotov, and Thomas Zylkin. "On the widely
+differing effects of free trade agreements: Lessons from twenty years
+of trade integration". Journal of International Economics
+116 (2019): 206-226.
+
+The algorithm used in this command was specifically written for the
+exercises performed in this paper. Section 6 of the paper provides
+a more detailed description of the underlying model and its connection
+to the literature.
+
+
+
+# Further Reading
+
+- Structural gravity: Anderson & van Wincoop (2003); Head & Mayer (2014)
+- Methods for solving trade models: Alvarez & Lucas (2007); Anderson, Larch, & Yotov (2015); Head &
+Mayer (2014)
+- Hat algebra: Dekle, Eaton, & Kortum (2007)
+- GE effects of EU enlargements: Felbermayr, Gröschl, & Heiland (2018); Mayer, Vicard, & Zignago (2018).
+
+
+
+# References
+
+[Alvarez, F. & Lucas, J., Robert E. (2007), “General equilibrium analysis of the Eaton–Kortum model of international trade”, Journal of Monetary Economics 54(6), 1726–1768.](https://www.sciencedirect.com/science/article/abs/pii/S0304393206002169)
+
+[Anderson, J. E., Larch, M., & Yotov, Y. V. (2015), “Estimating General Equilibrium Trade Policy Effects: GE PPML”, CESifo Working Paper 5592.](https://ideas.repec.org/p/ces/ceswps/_5592.html)
+
+[Anderson, J. E. & van Wincoop, E. (2003), “Gravity with Gravitas: A Solution to the Border Puzzle”, American Economic Review 93(1), 170–192.](https://www.jstor.org/stable/3132167?seq=1)
+
+[Anderson, J. E. & Yotov, Y. V. (2016), “Terms of trade and global efficiency effects of free trade agreements, 1990–2002”, Journal of International Economics 99, 279–298.](https://www.sciencedirect.com/science/article/abs/pii/S0022199615001531)
+
+[Baier, S. L., Yotov, Y. V., & Zylkin, T. (2019), “On the widely differing effects of free trade agreements: Lessons from twenty years of trade integration”, Journal of International Economics 116, 206–226.](https://www.sciencedirect.com/science/article/abs/pii/S0022199618304367)
+
+[Correia, S., Guimarães, P., & Zylkin, T. (2019), “ppmlhdfe: Fast Poisson Estimation with High-Dimensional Data”, arXiv preprint arXiv:1903.01690.](https://ideas.repec.org/p/arx/papers/1903.01690.html)
+
+[Dekle, R., Eaton, J., & Kortum, S. (2007), “Unbalanced Trade”, American Economic Review 97(2), 351–355. Egger, P., Larch, M., Staub, K. E., & Winkelmann, R. (2011), “The Trade Effects of Endogenous Preferential](https://www.researchgate.net/publication/4981229_Unbalanced_Trade)
+
+[Trade Agreements”, American Economic Journal: Economic Policy 3(3), 113–143.](https://www.jstor.org/stable/41238105?seq=1)
+
+[Felbermayr, G., Gröschl, J. K., & Heiland, I. (2018), “Undoing Europe in a new quantitative trade model”, Tech. rep., Ifo Working Paper.](https://ideas.repec.org/p/ces/ifowps/_250.html)
+
+[Head, K. & Mayer, T. (2014), “Gravity Equations: Workhorse, Toolkit, and Cookbook”, in G. Gopinath, E. Help- man, & K. Rogoff (eds.) Handbook of International Economics, vol. 4, pp. 131–195, North Holland, 4 ed.](http://www.cepii.fr/pdf_pub/wp/2013/wp2013-27.pdf)
+
+[Mayer, T., Vicard, V., & Zignago, S. (2018), “The cost of non-Europe, revisited”.](http://www.cepii.fr/PDF_PUB/wp/2018/wp2018-06.pdf)
+
+[Yotov, Y. V., Piermartini, R., Monteiro, J.-A., & Larch, M. (2016), An Advanced Guide to Trade Policy Analysis:
+The Structural Gravity Model, World Trade Organization, Geneva.](https://www.wto.org/english/res_e/booksp_e/advancedwtounctad2016_e.pdf)
