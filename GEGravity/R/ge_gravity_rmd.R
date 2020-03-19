@@ -3,34 +3,54 @@
 #' Opens Explanatory Rmd Files for GEGravity
 #'
 #' @description
-#'   This is a streamlined way of opening the descriptive logic and testing files
+#'   This is a streamlined way of getting the descriptive logic and testing files
 #'   that were made to accompany this function. Specifically, this will copy the appropriate file
-#'   and open it with your default rmd application (probably RStudio). This can be done manually
-#'   via system.file, i.e. system.file("rmds", "how.Rmd", package = "GEGravity") to get the directory
-#'   address of how.Rmd. The system.file approach on its own should be used if you do not want to
-#'   exhibit the default behavior.
+#'   into the user's working dir.
+#'
+#' @details
+#'   The Rmd files are defaulty set up to export to html. Exporting in LaTeX will likely cause
+#'   some issues. To manually knit, use \code{rmarkdown::render(filename, "html_document")}
+#'
+#'   This operation can also easily be done manually via \code{system.file},
+#'   i.e. \code{system.file("rmds", "<filename>.Rmd", package = "GEGravity")}
+#'   to get the directory address of an arbitrary Rmd file.
+#'
+#'   To open the RMD files programmatically, consider using \code{utils::file.edit()}.
 #'
 #' @param file The name of the Rmd file to open. The following are valid parameters:
 #' \itemize{
-#'  \item "all"     : Opens "about.Rmd"   \cr A compact file with all of the Rmd components combined.
-#'  \item "theory"  : Opens "theory.Rmd"  \cr The background, theory, and further readings for how this works.
-#'  \item "example" : Opens "example.Rmd" \cr A standard use case of \code{ge_gravity} using \code{TradeData0014}.
-#'  \item "logic"   : Opens "logic.Rmd"   \cr A step-by-step of exactly how \code{ge_gravity} operates.
-#'  \item "compare" : Opens "compare.Rmd" \cr A comparison of the results of \code{ge_gravity} against its Stata counterpart.
+#'  \item \code{"all"}     : Opens \code{"about.Rmd"}   \cr A compact file with all of the Rmd components combined.
+#'  \item \code{"theory"}  : Opens \code{"theory.Rmd"}  \cr The background, theory, and further readings for how this works.
+#'  \item \code{"example"} : Opens \code{"example.Rmd"} \cr A standard use case of \code{ge_gravity} using \code{TradeData0014}.
+#'  \item \code{"logic"}   : Opens \code{"logic.Rmd"}   \cr A step-by-step of exactly how \code{ge_gravity} operates.
+#'  \item \code{"compare"} : Opens \code{"compare.Rmd"} \cr A comparison of the results of \code{ge_gravity} against its Stata counterpart.
 #' }
 #'
-#' @importFrom utils file.edit
+#' @param only_url Just get the URL of the location.
+#'
+#' @examples
+#' # Copy about.Rmd file to working dir
+#' ge_gravity_rmd("all")
+#'
+#' # Copy, then programmatically render, theory.Rmd file to working dir
+#' ge_gravity_rmd("theory")
+#' rmarkdown::render("theory.Rmd")
+#'
+#' # Export to html in working dir w/o copying RMD file
+#' rmd_url <- ge_gravity_rmd("compare", only_url = TRUE)
+#' rmarkdown::render(rmd_url, output_dir = ".")
 #'
 #' @export
-ge_gravity_rmd <- function(file = "all"){
+ge_gravity_rmd <- function(file = "all", only_url = FALSE){
   filename <- switch (file,
-    "all"     = "how.Rmd",
+    "all"     = "about.Rmd",
     "theory"  = "theory.Rmd",
     "example" = "example.Rmd",
     "logic"   = "logic.Rmd",
     "compare" = "compare.Rmd"
   )
-  file.copy(system.file("rmds", filename, package = "GEGravity"), ".")
-  file.edit(filename)
+  url <- system.file("rmds", filename, package = "GEGravity")
+  if(!only_url) file.copy(url, ".")
+  return(url)
 }
 

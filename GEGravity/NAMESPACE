@@ -2,4 +2,3 @@
 
 export(ge_gravity)
 export(ge_gravity_rmd)
-importFrom(utils,file.edit)

@@ -7,15 +7,15 @@
 \format{
 A list with 7744 rows and 9 variables:
 \describe{
-  \item{exporter}{Country code of exporter country}
-  \item{importer}{Country code of importer country}
-  \item{expcode }{Label encoding of exporter country}
-  \item{impcode }{Label encoding of importer country}
-  \item{year    }{Year of row data}
-  \item{trade   }{Aggregate trade flow between importer and exporter for that year}
-  \item{eu_enlargement}{0-1 Booleanic; whether this pair in the EU}
-  \item{other_fta     }{0-1 Booleanic; other FTA pairwise satisfaction}
-  \item{FTA           }{0-1 Booleanic; eu_enlargement or other_fta}
+  \item{\code{exporter}}{Country code of exporter country}
+  \item{\code{importer}}{Country code of importer country}
+  \item{\code{expcode }}{Label encoding of exporter country}
+  \item{\code{impcode }}{Label encoding of importer country}
+  \item{\code{year    }}{Year of row data}
+  \item{\code{trade   }}{Aggregate trade flow between importer and exporter for that year}
+  \item{\code{eu_enlargement}}{0-1 Booleanic; whether this pair in the EU}
+  \item{\code{other_fta     }}{0-1 Booleanic; other FTA pairwise satisfaction}
+  \item{\code{FTA           }}{0-1 Booleanic; eu_enlargement or other_fta}
 }
 }
 \source{

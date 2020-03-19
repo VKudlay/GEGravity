@@ -126,8 +126,6 @@ head(results)
 plot(x = results$w_eu, y = w_o_mult$welfare, log = "xy")
 abline(coef = c(0,1))
 
-for(i in ((1:10) + floor(runif(1, 0, length(results$w_eu)/4 - 10))))
-  print(paste(i, results$w_eu[i], w_o_mult$welfare[i]))
 message("Max difference: ", max(abs(results$w_eu - w_o_mult$welfare)))
 ```
 
@@ -136,27 +134,21 @@ message("Max difference: ", max(abs(results$w_eu - w_o_mult$welfare)))
 plot(x = results$w_mult, y = w_mult$welfare, log = "xy")
 abline(coef = c(0,1))
 
-for(i in (1:10) + floor(runif(1, 0, length(results$w_eu) - 10)))
-  print(paste(i, results$w_mult[i], w_mult$welfare[i]))
 message("Max difference: ", max(abs(results$w_mult - w_mult$welfare)))
 ```
 
 #### Comparing results of new X w/o multiplier option
 ```{r}
-plot(x = results$X_eu, y = w_o_mult$X_eu, log = "xy")
+plot(x = results$X_eu, y = w_o_mult$new_trade, log = "xy")
 abline(coef = c(0,1))
 
-for(i in (1:10) + floor(runif(1, 0, length(results$w_eu - 10))))
-  print(paste(i, results$X_eu[results$year == 2000][i], w_o_mult$X_eu[i]))
-message("Max difference: ", max(abs(results$X_eu - w_o_mult$X_eu)))
+message("Max difference: ", max(abs(results$X_eu - w_o_mult$new_trade)))
 ```
 
 #### Comparing results of new X with multiplier option
 ```{r}
-plot(x = results$X_mult, y = w_mult$X_eu, log = "xy")
+plot(x = results$X_mult, y = w_mult$new_trade, log = "xy")
 abline(coef = c(0,1))
 
-for(i in (1:10) + floor(runif(1, 0, length(results$w_eu) - 10)))
-  print(paste(i, results$X_mult[i], w_mult$X_eu[i]))
-message("Max difference: ", max(abs(results$X_mult - w_mult$X_eu)))
+message("Max difference: ", max(abs(results$X_mult - w_mult$new_trade)))
 ```

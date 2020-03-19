@@ -41,25 +41,25 @@
 #'
 #'    This data will include the following:
 #'    \itemize{
-#'     \item X_eu:        The new level of trade for each pair of countries.
-#'     \item welfare:     The exporter's change in welfare (new/old level of welfare)
-#'     \item real_wage:   The exporter's change in real wage (new/old real wage). \cr
+#'     \item \code{new_trade}:   The new level of trade for each pair of countries.
+#'     \item \code{welfare}:     The exporter's change in welfare (new/old level of welfare)
+#'     \item \code{real_wage}:   The exporter's change in real wage (new/old real wage). \cr
 #'        Note: this is generally different from the change in welfare
 #'        unless either trade is balanced or the “multiplicative” option is chosen.
-#'     \item nom_wage:    The exporter's change in nominal wage (new/old nom wage).
-#'     \item price_index: The exporter's change in price index (new/old price index)
+#'     \item \code{nom_wage}:    The exporter's change in nominal wage (new/old nom wage).
+#'     \item \code{price_index}: The exporter's change in price index (new/old price index)
 #'    }
 #'
 #' @details
-#' Please see `ge_gracity_rmd("all")` for additional details.
+#' Please see \code{get_gravity_rmd("all")} for additional details.
 #'
 #' @references
-#' Please see `ge_gracity_rmd("all")` for information on references and sources.
+#' Please see \code{ge_gravity_rmd("all")} for information on references and sources.
 #'
-#' @seealso `ge_gracity_rmd` allows you to access very explanatory RMD files to augment documentation.
+#' @seealso \code{ge_gravity_rmd} allows you to access very explanatory RMD files to augment documentation.
 #'
-#' @example
-#' # For a detailed explination, check out the RMD files (see `ge_gravity_rmd`)
+#' @examples
+#' # For a detailed explination, check out the RMD files (see \code{ge_gravity_rmd})
 #'
 #' # Foreign trade subset
 #' f_trade <- TradeData0014[TradeData0014$exporter != TradeData0014$importer,]
@@ -73,7 +73,7 @@
 #' f_trade$pair     <- interaction(f_trade$impcode, f_trade$expcode)
 #'
 #' # Fit generalized linear model based on specifications
-#' partials <- feglm(
+#' partials <- alpaca::feglm(
 #'   formula = trade ~ eu_enlargement + other_fta | exp_year + imp_year + pair,
 #'   data    = f_trade,
 #'   family  = poisson()
@@ -110,33 +110,33 @@
 #' w_mult = ge_gravity(
 #'   exp_id = data$expcode,    # Origin country associated with each observation
 #'   imp_id = data$impcode,    # Destination country associated with each observation
-#'   flows  = data$trade,      # Observed trade flows in the data for the year being used as the baseline
-#'   beta   = data$eu_effect,  # “Partial” change in trade, obtained as coefficient from gravity estimation
+#'   flows  = data$trade,      # Observed trade flows for the baseline year
+#'   beta   = data$eu_effect,  # “Partial” trade change; coefficient from gravity estimation
 #'   theta  = 4,               # Trade elasticity
-#'   mult   = TRUE,            # Assume that national expenditure is a fixed multiple of national output
+#'   mult   = TRUE,            # Assume national expenditure is fixed multiple of nat. output
 #'   data   = data
 #' )
 #'
 #' w_o_mult = ge_gravity(
-#'   exp_id = data$expcode,    # Origin country associated with each observation
-#'   imp_id = data$impcode,    # Destination country associated with each observation
-#'   flows  = data$trade,      # Observed trade flows in the data for the year being used as the baseline
-#'   beta   = data$eu_effect,  # “Partial” change in trade, obtained as coefficient from gravity estimation
-#'   theta  = 4,               # Trade elasticity
-#'   mult   = FALSE,           # Assume trade balance is an additive component of national expenditure
-#'   data   = data
+#'   data$expcode,    # Origin country associated with each observation
+#'   data$impcode,    # Destination country associated with each observation
+#'   data$trade,      # Observed trade flows for the baseline year
+#'   data$eu_effect,  # “Partial” change in trade; coefficient from gravity estimation
+#'   4,               # Trade elasticity
+#'   FALSE,           # Assume trade balance is additive component of nat. expenditure
+#'   data
 #' )
 #'
 #' @export
 
 ge_gravity <- function(
-  exp_id,     # Origin country associated with each observation
-  imp_id,     # Destination country associated with each observation
-  flows,      # Observed trade flows in the data for the year being used as the baseline for the counterfactual
-  beta,       # An input reflecting the “partial” change in trade, typically obtained as a coefficient from a prior gravity estimation
-  theta       = 1,
-  mult        = FALSE,
-  data        = list()
+  exp_id,
+  imp_id,
+  flows,
+  beta,
+  theta = 1,
+  mult  = FALSE,
+  data  = list()
 ) {
 
   ################################################################
@@ -304,7 +304,7 @@ ge_gravity <- function(
     data_out$impcode <- imp_id
   }
 
-  data_out$X_eu        <- X_new
+  data_out$new_trade   <- X_new
   data_out$welfare     <- welfare
   data_out$real_wage   <- real_wage
   data_out$nom_wage    <- nom_wage

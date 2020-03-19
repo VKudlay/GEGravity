@@ -7,19 +7,19 @@
 \format{
 A list with 7744 rows and 15 variables:
 \describe{
-  \item{exporter - FTA}{described by \code{TradeData0014}}
-  \item{new_eu_pair}{0-1 Booleanic: Did they shift from non-EU pair to EU pair in time period}
-  \item{eu_effect  }{Effect of EU entrance on country based on partial, if entry happened}
-  \item{w_eu  }{Estimated exporter welfare at equilibrium, with
+  \item{\code{exporter} - \code{FTA}}{described by \code{TradeData0014}}
+  \item{\code{new_eu_pair}}{0-1 Booleanic: Did they shift from non-EU pair to EU pair in time period}
+  \item{\code{eu_effect  }}{Effect of EU entrance on country based on partial, if entry happened}
+  \item{\code{w_eu  }}{Estimated exporter welfare at equilibrium, with
            default (additive) assumption on national expendature.
            Omitted for entries where year != 2000}
-  \item{w_mult}{Estimated exporter welfare at equilibrium, with
+  \item{\code{w_mult}}{Estimated exporter welfare at equilibrium, with
            multiplicative assumption on national expendature.
            Omitted for entries where year != 2000}
-  \item{X_eu  }{Estimated level of trade at equilibrium, with
+  \item{\code{X_eu  }}{Estimated level of trade at equilibrium, with
            default (additive) assumption on national expendature.
            Omitted for entries where year != 2000}
-  \item{X_mult}{Estimated level of trade at equilibrium, with
+  \item{\code{X_mult}}{Estimated level of trade at equilibrium, with
            multiplicative assumption on national expendature.
            Omitted for entries where year != 2000}
 }
@@ -31,7 +31,7 @@ A list with 7744 rows and 15 variables:
 TradeData0014_Results
 }
 \description{
-Given the approach described in the example file of ge_gravity, running the function
+Given the approach described in the example file of \code{ge_gravity}, running the function
 in conjunction with the \code{ppmlhdfe} function yields the following results when
 converted to a list. This is provided to test the R implementation against this, as
 this is package is commissioned to mimic the performance of the Stata counterpart.

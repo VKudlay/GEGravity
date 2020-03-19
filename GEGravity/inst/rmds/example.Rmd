@@ -79,13 +79,14 @@ invisible(by(t_trade, list(t_trade$expcode, t_trade$impcode), function(row) {
 # Data to be finally fed to the function; only subset with eu_effect will be used
 data <- t_trade[t_trade$year == 2000,]   # In example, 1892 Entries, 5676 removed
 
-head(data)
+# head(data) # First 10 rows
+data[sample(1:nrow(data), 10),]  # 10 random rows
 ```
 
 So now, we have data, so we should be able to run the function as follows: 
 
 ```{r}
-head(ge_gravity(
+ge_results <- ge_gravity(
   exp_id = data$expcode,    # Origin country associated with each observation
   imp_id = data$impcode,    # Destination country associated with each observation
   flows  = data$trade,      # Observed trade flows in the data for the year being used as the baseline
@@ -93,7 +94,8 @@ head(ge_gravity(
   theta  = 4,               # Trade elasticity
   mult   = FALSE,           # Assume trade balance is an additive component of national expenditure
   data   = data
-))
+)
+ge_results[sample(1:nrow(ge_results), 10),] # 10 random rows
 ```
 
 

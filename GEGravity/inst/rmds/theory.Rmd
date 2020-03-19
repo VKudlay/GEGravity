@@ -74,7 +74,7 @@ $$Y_{i}\widehat{w}_{i} =
 \widehat{w}_{i}^{-\theta}
 \sum_{j}\frac{\pi_{ij}\cdot e^{\beta \times FTA_{ij}}}
              {\widehat{P}_{j}^{-\theta}}
-\cdot\left(Y_{j}\widehat{w}_{j} + D_{j}\right) \quad\forall i$$,
+\cdot\left(Y_{j}\widehat{w}_{j} + D_{j}\right) \quad\forall i,$$
 
 where $\pi_{ij}\equiv X_{ij}/E_{j}$ is a bilateral trade share and
 $\widehat{P}_{j}\equiv\left[\sum_{k}\pi_{kj}\widehat{w}_{k}^{-\theta}e^{\beta\times FTA_{kj}}\right]^{-1/\theta}$

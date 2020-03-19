@@ -86,7 +86,7 @@ $$Y_{i}\widehat{w}_{i} =
 \widehat{w}_{i}^{-\theta}
 \sum_{j}\frac{\pi_{ij}\cdot e^{\beta \times FTA_{ij}}}
              {\widehat{P}_{j}^{-\theta}}
-\cdot\left(Y_{j}\widehat{w}_{j} + D_{j}\right) \quad\forall i$$,
+\cdot\left(Y_{j}\widehat{w}_{j} + D_{j}\right) \quad\forall i,$$
 
 where $\pi_{ij}\equiv X_{ij}/E_{j}$ is a bilateral trade share and
 $\widehat{P}_{j}\equiv\left[\sum_{k}\pi_{kj}\widehat{w}_{k}^{-\theta}e^{\beta\times FTA_{kj}}\right]^{-1/\theta}$
@@ -222,7 +222,7 @@ head(data)
 So now, we have data, so we should be able to run the function as follows: 
 
 ```{r}
-head(ge_gravity(
+ge_results <- ge_gravity(
   exp_id = data$expcode,    # Origin country associated with each observation
   imp_id = data$impcode,    # Destination country associated with each observation
   flows  = data$trade,      # Observed trade flows in the data for the year being used as the baseline
@@ -230,7 +230,8 @@ head(ge_gravity(
   theta  = 4,               # Trade elasticity
   mult   = FALSE,           # Assume trade balance is an additive component of national expenditure
   data   = data
-))
+)
+ge_results[sample(1:nrow(ge_results), 10),]
 ```
 
 
@@ -536,7 +537,7 @@ And then, we can just return them:
 # Build and return the final list
 data_out <- data
 
-data_out$X_eu        <- X_new
+data_out$new_trade   <- X_new
 data_out$welfare     <- welfare
 data_out$real_wage   <- real_wage
 data_out$nom_wage    <- nom_wage
@@ -700,8 +701,6 @@ head(results)
 plot(x = results$w_eu, y = w_o_mult$welfare, log = "xy")
 abline(coef = c(0,1))
 
-for(i in ((1:10) + floor(runif(1, 0, length(results$w_eu)/4 - 10))))
-  print(paste(i, results$w_eu[i], w_o_mult$welfare[i]))
 message("Max difference: ", max(abs(results$w_eu - w_o_mult$welfare)))
 ```
 
@@ -710,29 +709,23 @@ message("Max difference: ", max(abs(results$w_eu - w_o_mult$welfare)))
 plot(x = results$w_mult, y = w_mult$welfare, log = "xy")
 abline(coef = c(0,1))
 
-for(i in (1:10) + floor(runif(1, 0, length(results$w_eu) - 10)))
-  print(paste(i, results$w_mult[i], w_mult$welfare[i]))
 message("Max difference: ", max(abs(results$w_mult - w_mult$welfare)))
 ```
 
 #### Comparing results of new X w/o multiplier option
 ```{r}
-plot(x = results$X_eu, y = w_o_mult$X_eu, log = "xy")
+plot(x = results$X_eu, y = w_o_mult$new_trade, log = "xy")
 abline(coef = c(0,1))
 
-for(i in (1:10) + floor(runif(1, 0, length(results$w_eu - 10))))
-  print(paste(i, results$X_eu[results$year == 2000][i], w_o_mult$X_eu[i]))
-message("Max difference: ", max(abs(results$X_eu - w_o_mult$X_eu)))
+message("Max difference: ", max(abs(results$X_eu - w_o_mult$new_trade)))
 ```
 
 #### Comparing results of new X with multiplier option
 ```{r}
-plot(x = results$X_mult, y = w_mult$X_eu, log = "xy")
+plot(x = results$X_mult, y = w_mult$new_trade, log = "xy")
 abline(coef = c(0,1))
 
-for(i in (1:10) + floor(runif(1, 0, length(results$w_eu) - 10)))
-  print(paste(i, results$X_mult[i], w_mult$X_eu[i]))
-message("Max difference: ", max(abs(results$X_mult - w_mult$X_eu)))
+message("Max difference: ", max(abs(results$X_mult - w_mult$new_trade)))
 ```
 
 

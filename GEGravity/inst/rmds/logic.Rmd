@@ -344,7 +344,7 @@ And then, we can just return them:
 # Build and return the final list
 data_out <- data
 
-data_out$X_eu        <- X_new
+data_out$new_trade   <- X_new
 data_out$welfare     <- welfare
 data_out$real_wage   <- real_wage
 data_out$nom_wage    <- nom_wage

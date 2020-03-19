@@ -12,15 +12,15 @@
 #'
 #' @format A list with 7744 rows and 9 variables:
 #' \describe{
-#'   \item{exporter}{Country code of exporter country}
-#'   \item{importer}{Country code of importer country}
-#'   \item{expcode }{Label encoding of exporter country}
-#'   \item{impcode }{Label encoding of importer country}
-#'   \item{year    }{Year of row data}
-#'   \item{trade   }{Aggregate trade flow between importer and exporter for that year}
-#'   \item{eu_enlargement}{0-1 Booleanic; whether this pair in the EU}
-#'   \item{other_fta     }{0-1 Booleanic; other FTA pairwise satisfaction}
-#'   \item{FTA           }{0-1 Booleanic; eu_enlargement or other_fta}
+#'   \item{\code{exporter}}{Country code of exporter country}
+#'   \item{\code{importer}}{Country code of importer country}
+#'   \item{\code{expcode }}{Label encoding of exporter country}
+#'   \item{\code{impcode }}{Label encoding of importer country}
+#'   \item{\code{year    }}{Year of row data}
+#'   \item{\code{trade   }}{Aggregate trade flow between importer and exporter for that year}
+#'   \item{\code{eu_enlargement}}{0-1 Booleanic; whether this pair in the EU}
+#'   \item{\code{other_fta     }}{0-1 Booleanic; other FTA pairwise satisfaction}
+#'   \item{\code{FTA           }}{0-1 Booleanic; eu_enlargement or other_fta}
 #' }
 #' @source \url{http://www.wiod.org/database/wiots16}
 #' @source \url{https://sites.nd.edu/jeffrey-bergstrand/database-on-economic-integration-agreements/}
@@ -32,26 +32,26 @@
 #' Trade Data 2000 - 2014 Results When Running Stata ge_gravity
 #'
 #' @description
-#' Given the approach described in the example file of ge_gravity, running the function
+#' Given the approach described in the example file of \code{ge_gravity}, running the function
 #' in conjunction with the \code{ppmlhdfe} function yields the following results when
 #' converted to a list. This is provided to test the R implementation against this, as
 #' this is package is commissioned to mimic the performance of the Stata counterpart.
 #'
 #' @format A list with 7744 rows and 15 variables:
 #' \describe{
-#'   \item{exporter - FTA}{described by \code{TradeData0014}}
-#'   \item{new_eu_pair}{0-1 Booleanic: Did they shift from non-EU pair to EU pair in time period}
-#'   \item{eu_effect  }{Effect of EU entrance on country based on partial, if entry happened}
-#'   \item{w_eu  }{Estimated exporter welfare at equilibrium, with
+#'   \item{\code{exporter} - \code{FTA}}{described by \code{TradeData0014}}
+#'   \item{\code{new_eu_pair}}{0-1 Booleanic: Did they shift from non-EU pair to EU pair in time period}
+#'   \item{\code{eu_effect  }}{Effect of EU entrance on country based on partial, if entry happened}
+#'   \item{\code{w_eu  }}{Estimated exporter welfare at equilibrium, with
 #'            default (additive) assumption on national expendature.
 #'            Omitted for entries where year != 2000}
-#'   \item{w_mult}{Estimated exporter welfare at equilibrium, with
+#'   \item{\code{w_mult}}{Estimated exporter welfare at equilibrium, with
 #'            multiplicative assumption on national expendature.
 #'            Omitted for entries where year != 2000}
-#'   \item{X_eu  }{Estimated level of trade at equilibrium, with
+#'   \item{\code{X_eu  }}{Estimated level of trade at equilibrium, with
 #'            default (additive) assumption on national expendature.
 #'            Omitted for entries where year != 2000}
-#'   \item{X_mult}{Estimated level of trade at equilibrium, with
+#'   \item{\code{X_mult}}{Estimated level of trade at equilibrium, with
 #'            multiplicative assumption on national expendature.
 #'            Omitted for entries where year != 2000}
 #' }
