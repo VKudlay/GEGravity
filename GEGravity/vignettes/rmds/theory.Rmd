@@ -1,6 +1,12 @@
 ---
 title: "GE_Gravity Theory"
-output: html_document
+author: "Tom Zylkin, Vadim Kudlay"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{GE_Gravity Theory, Logic, Testing, and Comparison}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
 ---
 
 ```{r setup, echo=FALSE}
