@@ -58,10 +58,10 @@ A dataframe element containing resulting estimations of impacts.
   Monteiro, & Larch (2016) provide a detailed survey and introduction to the topic.
 }
 \details{
-Please see \code{get_gravity_rmd("all")} for additional details.
+Please see \code{browseVignettes("ge_gravity")} for additional details.
 }
 \examples{
-# For a detailed explination, check out the RMD files (see \code{ge_gravity_rmd})
+# For a detailed explination, check out the vignettes (see \code{browseVignettes("ge_gravity")})
 
 # Foreign trade subset
 f_trade <- TradeData0014[TradeData0014$exporter != TradeData0014$importer,]
@@ -131,8 +131,9 @@ w_o_mult = ge_gravity(
 
 }
 \references{
-Please see \code{ge_gravity_rmd("all")} for information on references and sources.
+Please see \code{browseVignettes("ge_gravity")} for information on references and sources.
 }
 \seealso{
-\code{ge_gravity_rmd} allows you to access very explanatory RMD files to augment documentation.
+The vignettes allow you to access very explanatory RMD files to augment documentation.
+     Please check them out!
 }

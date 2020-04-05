@@ -1,16 +1,30 @@
 ---
 title: "GE_Gravity Example"
 author: "Tom Zylkin, Vadim Kudlay"
-date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{GE_Gravity Theory, Logic, Testing, and Comparison}
+  %\VignetteIndexEntry{GE_Gravity Example}
   %\VignetteEngine{knitr::rmarkdown}
-  \usepackage[utf8]{inputenc}
+  %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, echo=FALSE}
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, echo = FALSE}
 library(GEGravity)
+if (!requireNamespace("alpaca", quietly = TRUE)) {
+  stop("Package \"alpaca\" needed for about.Rmd and example.Rmd to work. Please install it.",
+    call. = FALSE)
+}
+if (!requireNamespace("boot", quietly = TRUE)) {
+  stop("Package \"boot\" needed for about.Rmd and example.Rmd to work. Please install it.",
+    call. = FALSE)
+}
 ```
 
 This example RMD uses the example data \code{TradeData0014}. The data set consists of a panel of 44 countries trading with one another over the years 2000-2014. The trade data uses aggregated trade flows based on [WIOD](http://www.wiod.org/database/wiots16) and information on FTAs is from the [NSF-Kellogg database](https://sites.nd.edu/jeffrey-bergstrand/database-on-economic-integration-agreements/) maintained by Scott Baier and Jeff Bergstrand. To find out more about the trade flows, consider checking out ["An Illustrated User Guide to the World Input-Output Database: The Case of Global Automotive Production" published by Timmer, Dietzenbacher, Los, Stehrer, and de Vries, Review of International Economics, 2015](https://www.researchgate.net/publication/274731196_An_Illustrated_User_Guide_to_the_World_Input-Output_Database_The_Case_of_Global_Automotive_Production).
@@ -109,7 +123,7 @@ This assumes a standard trade elasticity value of $\theta = 4$. The input for \c
 
 We can also change how trade imbalances enter the model. The default (exibited above with mult = FALSE) is to assume that they enter expenditure additively (i.e., $E_j = Y_j + D_j$), but one can also change the model so that expenditure is instead a fixed multiple of income (i.e., let $E_j = \delta_j Y_j$.) by setting \code{mult = TRUE}. While using multiplicative imbalances instead of additive balances changes the results slightly, they are still qualitatively very similar.
 
-An important point about the above exercises is that the initial partial effect is estimated with some uncertainty. The GE results that were calculated may paint a misleading picture because they do not take this uncertainty into account. For this reason, it is considered good practice to use a bootstrap method to construct confidence intervals for the GE calculations. This type of procedure is easily coded using ge_gravity. 
+An important point about the above exercises is that the initial partial effect is estimated with some uncertainty. The GE results that were calculated may paint a misleading picture because they do not take this uncertainty into account. For this reason, it is considered good practice to use a bootstrap method to construct confidence intervals for the GE calculations. This type of procedure is easily coded using `ge_gravity`. 
 
 ```{r}
 run_count <- 0
@@ -157,13 +171,13 @@ runGEG <- function(f_trade, indices) {
     exp_id = data$expcode,    # Origin country associated with each observation
     imp_id = data$impcode,    # Destination country associated with each observation
     flows  = data$trade,      # Observed trade flows in the data for the year being used as the baseline
-    beta   = data$eu_effect,  # “Partial” change in trade, obtained as coefficient from gravity estimation
+    beta   = data$eu_effect,  # “Partial” change in trade, obtained as coeff from gravity estimation
     theta  = 4,               # Trade elasticity
     mult   = FALSE           # Assume trade balance is an additive component of national expenditure
   )
   
   run_count <<- run_count + 1
-  cat("\r", " - Run ", run_count)
+  # cat("\r", " - Run ", run_count) # If you're doing a lot in real-time, uncomment to track progress
   
   return(unlist(ge_results[3:7], use.names=FALSE))
 }
@@ -184,7 +198,7 @@ library(alpaca)   # Needed for partial coefficients
 library(boot)     # Easy bootstrapping 
 
 set.seed(12345)
-myBootstrap <- boot(f_trade, runGEG, R=20)
+myBootstrap <- boot(f_trade, runGEG, R=10) # Only doing 10 runs
 ```
 
 ```{r}

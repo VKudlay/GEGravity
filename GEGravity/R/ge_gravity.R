@@ -51,15 +51,16 @@
 #'    }
 #'
 #' @details
-#' Please see \code{get_gravity_rmd("all")} for additional details.
+#' Please see \code{browseVignettes("GEGravity")} for additional details.
 #'
 #' @references
-#' Please see \code{ge_gravity_rmd("all")} for information on references and sources.
+#' Please see \code{browseVignettes("GEGravity")} for information on references and sources.
 #'
-#' @seealso \code{ge_gravity_rmd} allows you to access very explanatory RMD files to augment documentation.
+#' @seealso The vignettes allow you to access very explanatory RMD files to augment documentation.
+#'      Please check them out!
 #'
 #' @examples
-#' # For a detailed explination, check out the RMD files (see \code{ge_gravity_rmd})
+#' # For a detailed explination, check out the vignettes (see \code{browseVignettes("GEGravity")})
 #'
 #' # Foreign trade subset
 #' f_trade <- TradeData0014[TradeData0014$exporter != TradeData0014$importer,]

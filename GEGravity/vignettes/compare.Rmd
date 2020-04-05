@@ -1,15 +1,21 @@
 ---
 title: "GE_Gravity Logic and Testing"
 author: "Tom Zylkin, Vadim Kudlay"
-date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{GE_Gravity Theory, Logic, Testing, and Comparison}
+  %\VignetteIndexEntry{GE_Gravity Logic and Testing}
   %\VignetteEngine{knitr::rmarkdown}
-  \usepackage[utf8]{inputenc}
+  %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, echo=FALSE}
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
 library(GEGravity)
 ```
 
