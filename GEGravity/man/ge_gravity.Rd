@@ -58,10 +58,10 @@ A dataframe element containing resulting estimations of impacts.
   Monteiro, & Larch (2016) provide a detailed survey and introduction to the topic.
 }
 \details{
-Please see \code{browseVignettes("ge_gravity")} for additional details.
+Please see \code{browseVignettes("GEGravity")} for additional details.
 }
 \examples{
-# For a detailed explination, check out the vignettes (see \code{browseVignettes("ge_gravity")})
+# For a detailed explination, check out the vignettes (see \code{browseVignettes("GEGravity")})
 
 # Foreign trade subset
 f_trade <- TradeData0014[TradeData0014$exporter != TradeData0014$importer,]
@@ -131,7 +131,7 @@ w_o_mult = ge_gravity(
 
 }
 \references{
-Please see \code{browseVignettes("ge_gravity")} for information on references and sources.
+Please see \code{browseVignettes("GEGravity")} for information on references and sources.
 }
 \seealso{
 The vignettes allow you to access very explanatory RMD files to augment documentation.
