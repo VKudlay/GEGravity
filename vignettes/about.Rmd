@@ -27,13 +27,13 @@ if (!requireNamespace("boot", quietly = TRUE)) {
 }
 ```
 
-This is a compiled RMD file describing a `GEGravity` in more depth. 
-For parameterizations and basic description, see the documentation 
-i.e. `help(ge_gravity)`. This is more of an extension to the formal 
-documentation to keep the `help` command from being overbloated. 
+This is a compiled RMD file describing a `GEGravity` in more depth.
+For parameterizations and basic description, see the documentation
+i.e. `help(ge_gravity)`. This is more of an extension to the formal
+documentation to keep the `help` command from being overbloated.
 
-This overarching file contains all of the contents of `theory.Rmd`, 
-`example.Rmd`, `logic.Rmd`, and `compare.Rmd`, almost in that order. 
+This overarching file contains all of the contents of `theory.Rmd`,
+`example.Rmd`, `logic.Rmd`, and `compare.Rmd`, almost in that order.
 To see the smaller version, please check out `ge_gravity_rmd`
 
 
@@ -58,8 +58,8 @@ national trade deficit/surplus: $E_{j} = w_{j}L_{j} + D_{j}$.
 
 To obtain the \emph{partial} effects of changes in trade policies
 on trade (i.e., holding all wages fixed), a standard approach is to
-estimate using structural gravity. For example, if we have a panel of 
-trading countries and we want to know the "average partial effect" 
+estimate using structural gravity. For example, if we have a panel of
+trading countries and we want to know the "average partial effect"
 of FTAs on trade, we can estimate the following "three-way" gravity regression:
 
 $$X_{ijt} =\exp\left[\ln\alpha_{it}+\ln\alpha_{jt}+\ln\alpha_{ij}+\beta\times FTA_{ijt}\right]+e_{ijt},$$
@@ -101,7 +101,7 @@ gives the change in $i$'s wage level.) Noting that $\widehat{\tau}_{ij}^{-\theta
 the "equilibrium in changes" version of wages can
 be written as:
 
-$$Y_{i}\widehat{w}_{i} = 
+$$Y_{i}\widehat{w}_{i} =
 \widehat{w}_{i}^{-\theta}
 \sum_{j}\frac{\pi_{ij}\cdot e^{\beta \times FTA_{ij}}}
              {\widehat{P}_{j}^{-\theta}}
@@ -130,7 +130,7 @@ the baseline and the counterfactual (i.e., $\sum_{i}Y_{i}\widehat{w}_{i} = \sum_
 The precise method used to solve the model is described further below.
 
 
-# Algorithm 
+# Algorithm
 
 While there are several ways to solve for counterfactuals in the above
 model, the simplest approach is arguably a fixed point algorithm that
@@ -142,8 +142,8 @@ $\forall i$ and $E_{i}^{\prime}=E_{i}$$\forall i$. The iteration
 loop then requires only 4 steps:
 
 1. Update $\widehat{w}_{i}$ $\forall$ $i$ one time using
-$$\widehat{w}_{i} = \left[Y_{i}^{-1}\sum_{j}\frac{\pi_{ij}\cdot 
-e^{\beta\times FTA_{ij}}}{\widehat{P}_{j}^{-\theta}}\cdot 
+$$\widehat{w}_{i} = \left[Y_{i}^{-1}\sum_{j}\frac{\pi_{ij}\cdot
+e^{\beta\times FTA_{ij}}}{\widehat{P}_{j}^{-\theta}}\cdot
 E_{j}^{\prime}\right]^{\frac{1}{1+\theta}}\quad\forall i.$$
 
 2. Normalize all wages so that world output stays fixed: $\sum_{i}Y_{i}\widehat{w}_{i}=\sum_{i}Y_{i}$.
@@ -151,7 +151,7 @@ E_{j}^{\prime}\right]^{\frac{1}{1+\theta}}\quad\forall i.$$
 3. Update $\widehat{P}_{j}^{-\theta}=\left[\sum_{k}\pi_{kj}\widehat{w}_{k}^{-\theta}e^{b\times FTA_{kj}}\right]$
 $\forall$ $j$.
 
-4. Update $E_{j}^{\prime}=Y_{j}\widehat{w}_{j}+D_{j}$ $\forall$ $j$. 
+4. Update $E_{j}^{\prime}=Y_{j}\widehat{w}_{j}+D_{j}$ $\forall$ $j$.
 - (Repeat steps 1-4 until convergence.)
 
 
@@ -161,7 +161,7 @@ approach to updating wages in step 1. It should generally be very
 fast because it does not involve using a nonlinear solver.
 
 
-*** 
+***
 
 # Example
 
@@ -172,7 +172,7 @@ For an example, the package comes with example data `TradeData0014`. The data se
 head(TradeData0014)
 ```
 
-Suppose the researcher wishes to use this data set to quantify general equilibrium trade and welfare effects of the EU enlargements that took place between 2000-2014. To first obtain the partial effects of these enlargements on trade flows, a PPML (Poisson pseudo-maximum likelihood) gravity specification may be used. Specifically, to obtain the "partial" estimates of the effects of EU enlargements on trade, we can use the following three-way gravity specification: 
+Suppose the researcher wishes to use this data set to quantify general equilibrium trade and welfare effects of the EU enlargements that took place between 2000-2014. To first obtain the partial effects of these enlargements on trade flows, a PPML (Poisson pseudo-maximum likelihood) gravity specification may be used. Specifically, to obtain the "partial" estimates of the effects of EU enlargements on trade, we can use the following three-way gravity specification:
 
 $$X_{ijt} = \exp\bigg[\ln(\alpha_{it}) + \ln(\alpha_{jt}) + \ln(\alpha_{ij}) + \beta \cdot FTA_{ijt}\bigg] + e_{ijt}$$
 
@@ -182,7 +182,7 @@ The Stata equivalent of this package uses the ppmlhdfe command created by Correi
 library(alpaca)  # Needed for partial coefficients
 
 # Generate foreign trade subset
-f_trade <- TradeData0014[TradeData0014$exporter != TradeData0014$importer,]             
+f_trade <- TradeData0014[TradeData0014$exporter != TradeData0014$importer,]
 
 # Normalize trade data to unit interval
 f_trade$trade <- f_trade$trade / max(f_trade$trade)
@@ -194,8 +194,8 @@ f_trade$pair     <- interaction(f_trade$impcode, f_trade$expcode)
 
 # Fit generalized linear model based on specifications
 partials <- feglm(
-  formula = trade ~ eu_enlargement + other_fta | exp_year + imp_year + pair, 
-  data    = f_trade, 
+  formula = trade ~ eu_enlargement + other_fta | exp_year + imp_year + pair,
+  data    = f_trade,
   family  = poisson()
 )$coefficient  # We just need the coefficients for computation
 
@@ -206,41 +206,39 @@ In addition to estimating the effects of EU enlargements on new EU pairs, this e
 
 ***
 
-Further pre-processing is needed. Specifically, the function needs to get a series 
-of importer/exporter pairs with their appropriate impacts of joining the EU, 
-which is either the the eu_enlargement partial computed above or 0 (because they didn't join). 
-To obtain the general equilibrium effects of these new additions to the EU (as of 2000) 
+Further pre-processing is needed. Specifically, the function needs to get a series
+of importer/exporter pairs with their appropriate impacts of joining the EU,
+which is either the the eu_enlargement partial computed above or 0 (because they didn't join).
+To obtain the general equilibrium effects of these new additions to the EU (as of 2000)
 
 ```{r}
 # Sort matrix to make it easier to find imp/exp pairs
 t_trade <- TradeData0014[order(
-  TradeData0014$exporter, 
-  TradeData0014$importer, 
+  TradeData0014$exporter,
+  TradeData0014$importer,
   TradeData0014$year),
 ]
 
-t_trade$eu_effect <- NA      # This creates new column eu_effect
+# Create a new column with the partial effect of EU membership for new EU pairs
+t_trade$eu_effect <- NA
 
 i <- 1
 # Effect of EU entrance on country based on partial, if entry happened
-invisible(by(t_trade, list(t_trade$expcode, t_trade$impcode), function(row) { 
-  
-  # This is an effective boolean; was this a new EU pair created within time span?
-  is_new_eu_pair <- tail(row$eu_enlargement, 1) - head(row$eu_enlargement, 1)
-
-  # If it was, give it the computed partial eu_enlargement coefficient; if not, leave it unset
-  t_trade[i, "eu_effect"] <<- is_new_eu_pair * partials[1]
-  
-  i <<- i + nrow(row)         # Increment index to start at the next imp/exp pair
+invisible(by(t_trade, list(t_trade$expcode, t_trade$impcode), function(row) {
+  # Was a new EU pair created within time span?
+  t_trade[i:(i+nrow(row)-1), "eu_effect"] <<- diff(row$eu_enlargement, lag=nrow(row)-1)
+  i <<- i + nrow(row)
 }))
+# If added to EU, give it the computed partial eu_enlargement coefficient as the effect
+t_trade$eu_effect = t_trade$eu_effect * partials[1]
 
-# Data to be finally fed to the function; only subset with eu_effect will be used
+# Data to be finally fed to the function
 data <- t_trade[t_trade$year == 2000,]   # In example, 1892 Entries, 5676 removed
 
 head(data)
 ```
 
-So now, we have data, so we should be able to run the function as follows: 
+So now, we have data, so we should be able to run the function as follows:
 
 ```{r}
 ge_results <- ge_gravity(
@@ -260,50 +258,46 @@ This assumes a standard trade elasticity value of $\theta = 4$. The input for `b
 
 We can also change how trade imbalances enter the model. The default (exibited above with mult = FALSE) is to assume that they enter expenditure additively (i.e., $E_j = Y_j + D_j$), but one can also change the model so that expenditure is instead a fixed multiple of income (i.e., let $E_j = \delta_j Y_j$.) by setting `mult = TRUE`. While using multiplicative imbalances instead of additive balances changes the results slightly, they are still qualitatively very similar.
 
-An important point about the above exercises is that the initial partial effect is estimated with some uncertainty. The GE results that were calculated may paint a misleading picture because they do not take this uncertainty into account. For this reason, it is considered good practice to use a bootstrap method to construct confidence intervals for the GE calculations. This type of procedure is easily coded using `ge_gravity`. 
+An important point about the above exercises is that the initial partial effect is estimated with some uncertainty. The GE results that were calculated may paint a misleading picture because they do not take this uncertainty into account. For this reason, it is considered good practice to use a bootstrap method to construct confidence intervals for the GE calculations. This type of procedure is easily coded using `ge_gravity`.
 
 ```{r}
 run_count <- 0
 
 # Compute partials and run simulation for sample
 runGEG <- function(f_trade, indices) {
-  
+
   # print(f_trade)
   f_trade <- f_trade[indices, ]
   # print(f_trade)
 
   # Fit generalized linear model based on specifications
   partials <- feglm(
-    formula = trade ~ eu_enlargement + other_fta | exp_year + imp_year + pair, 
-    data    = f_trade, 
+    formula = trade ~ eu_enlargement + other_fta | exp_year + imp_year + pair,
+    data    = f_trade,
     family  = poisson()
   )$coefficient  # We just need the coefficients for computation
-  
+
   # Sort matrix to make it easier to find imp/exp pairs
   t_trade <- TradeData0014[order(
-    TradeData0014$exporter, 
-    TradeData0014$importer, 
+    TradeData0014$exporter,
+    TradeData0014$importer,
     TradeData0014$year),
   ]
-  
-  t_trade$eu_effect <- NA      # This creates new column eu_effect
-  
+
+  t_trade$eu_effect <- NA      # this creates a new column with the partial effect of EU membership for new EU pairs
   i <- 1
   # Effect of EU entrance on country based on partial, if entry happened
-  invisible(by(t_trade, list(t_trade$expcode, t_trade$impcode), function(row) { 
-    
-    # This is an effective boolean; was this a new EU pair created within time span?
-    is_new_eu_pair <- tail(row$eu_enlargement, 1) - head(row$eu_enlargement, 1)
-  
-    # If it was, give it the computed partial eu_enlargement coefficient; if not, leave it unset
-    t_trade[i, "eu_effect"] <<- is_new_eu_pair * partials[1]
-    
-    i <<- i + nrow(row)         # Increment index to start at the next imp/exp pair
+  invisible(by(t_trade, list(t_trade$expcode, t_trade$impcode), function(row) {
+    # Was a new EU pair created within time span?
+    t_trade[i:(i+nrow(row)-1), "eu_effect"] <<- diff(row$eu_enlargement, lag=nrow(row)-1)
+    i <<- i + nrow(row)
   }))
-  
-  # Data to be finally fed to the function; only subset with eu_effect will be used
+  # If added to EU, give it the computed partial eu_enlargement coefficient as the effect
+  t_trade$eu_effect = t_trade$eu_effect * partials[1]
+
+  # Data to be finally fed to the function
   data <- t_trade[t_trade$year == 2000,]   # In example, 1892 Entries, 5676 removed
-  
+
   ge_results <- ge_gravity(
     exp_id = data$expcode,    # Origin country associated with each observation
     imp_id = data$impcode,    # Destination country associated with each observation
@@ -312,16 +306,16 @@ runGEG <- function(f_trade, indices) {
     theta  = 4,               # Trade elasticity
     mult   = FALSE           # Assume trade balance is an additive component of national expenditure
   )
-  
+
   run_count <<- run_count + 1
   # cat("\r", " - Run ", run_count) # If you're doing a lot in real-time, uncomment to track progress
-  
+
   return(unlist(ge_results[3:7], use.names=FALSE))
 }
 
 # Get the base foreign trade matrix
 # Generate foreign trade subset
-f_trade <- TradeData0014[TradeData0014$exporter != TradeData0014$importer,]             
+f_trade <- TradeData0014[TradeData0014$exporter != TradeData0014$importer,]
 
 # Normalize trade data to unit interval
 f_trade$trade <- f_trade$trade / max(f_trade$trade)
@@ -332,7 +326,7 @@ f_trade$imp_year <- interaction(f_trade$impcode, f_trade$year)
 f_trade$pair     <- interaction(f_trade$impcode, f_trade$expcode)
 
 library(alpaca)   # Needed for partial coefficients
-library(boot)     # Easy bootstrapping 
+library(boot)     # Easy bootstrapping
 
 set.seed(12345)
 myBootstrap <- boot(f_trade, runGEG, R=10) # Only doing 10 runs
@@ -348,7 +342,7 @@ head(btsp_est)
 ```{r}
 # Get standard error
 std_err  <- apply(myBootstrap$t, 2, sd)
-dim(std_err) <- c(length(std_err)/5, 5) 
+dim(std_err) <- c(length(std_err)/5, 5)
 head(std_err)
 ```
 
@@ -379,14 +373,14 @@ theta  <- 4
 mult   <- FALSE
 ```
 
-In the following, we are going to trace and test the algorithm as if it were being called. 
+In the following, we are going to trace and test the algorithm as if it were being called.
 
 As an assumption:
-- $i$ indices are defined for each origin/exporter, and matrices enumerable by them are Nx1 matrices. Sums for all $i$ are generally defined by colSums 
-- $j$ indices are defined for each destination/importer, and matrices enumerable by them are 1xN matrices. Sums for all $j$ are generally defined by rowSums 
+- $i$ indices are defined for each origin/exporter, and matrices enumerable by them are Nx1 matrices. Sums for all $i$ are generally defined by colSums
+- $j$ indices are defined for each destination/importer, and matrices enumerable by them are 1xN matrices. Sums for all $j$ are generally defined by rowSums
 - Column- and Row-wise summations will be done explicitly, and R's vector math operations will not be assumed to facilitate it.
 
-To be safe and explanatory, we will also define a few functions: 
+To be safe and explanatory, we will also define a few functions:
 - Typesafe function `ts` that can verify that our initial dimensions hold and that no $\texttt{NA}$ values are introduced.
 - Sanity function `sanity` that will make sure that a vector/matrix does not change cardinality illogically.
 - `printHead` just to be lazy and show only a tiny subset of data without much code.
@@ -416,8 +410,8 @@ ts <- function(Vec, Val, line = "?") {
 sanity <- function(name, Vec, dstr) {
   message(" > Sanity Check: ")
   for (i in 1:length(Vec))
-    message("  - dim(", name[i], ") = ", 
-      dim(Vec[[i]])[1], " x ", dim(Vec[[i]])[2], 
+    message("  - dim(", name[i], ") = ",
+      dim(Vec[[i]])[1], " x ", dim(Vec[[i]])[2],
       " (defined for ", dstr[i], ")"
     )
 }
@@ -469,7 +463,7 @@ sanity(c("X"), list(X), c("i and j"))
 
 Now, we are almost done. In this model, we want to build up:
 
-- The change in price levels in each country $\hat{P_j}$ for all importers. 
+- The change in price levels in each country $\hat{P_j}$ for all importers.
 
 - The Gross Estimate General Welfare $\hat{W}_{j}$ for all importers.
 
@@ -517,15 +511,15 @@ $\sum_{i}Y_{i}\widehat{w}_{i}=\sum_{i}Y_{i}$.
 w_hat <- ts(w_hat, w_hat * (sum(Y) / sum(Y*w_hat)))
 ```
 
-#### Step 3: Update 
+#### Step 3: Update
 $\widehat{P}_{j}^{-\theta}=\left[\sum_{k}\pi_{kj}\widehat{w}_{k}^{-\theta}e^{b\times FTA_{kj}}\right] \forall \ j$.
 
 ```{r}
 P_hat <- ts(P_hat, (t(Pi) * t(B)) %*% (w_hat^(-theta)))
 ```
 
-#### Step 4: Update 
-$E_{j}^{\prime}=Y_{j}\widehat{w}_{j}+D_{j} \ \forall \ j$. 
+#### Step 4: Update
+$E_{j}^{\prime}=Y_{j}\widehat{w}_{j}+D_{j} \ \forall \ j$.
 
 ```{r}
 if (mult) {
@@ -540,7 +534,7 @@ if (mult) {
 
 ```{r}
 p1 <- (Pi * B)
-p2 <- kronecker((w_hat^(-theta)), matrix(1,1,n)) 
+p2 <- kronecker((w_hat^(-theta)), matrix(1,1,n))
 p3 <- kronecker(t(P_hat), matrix(1,n,1))
 
 Pi_new <- ts(Pi, p1 * p2 / p3, 296)
@@ -548,7 +542,7 @@ Pi_new <- ts(Pi, p1 * p2 / p3, 296)
 X_new <- ts(X, Pi_new * kronecker(t(E), matrix(1,n,1)))
 ```
 
-From there, we just need a way to check convergence to a steady-state, so let's put it all together: 
+From there, we just need a way to check convergence to a steady-state, so let's put it all together:
 
 ```{r}
 # Initialize w_i_hat = P_j_hat = 1
@@ -676,7 +670,7 @@ head(data_out)
 
 ***
 
-# Running The Algorithm 
+# Running The Algorithm
 
 ```{r, echo=FALSE}
 library(alpaca)  # Needed for partial coefficients
@@ -699,8 +693,8 @@ f_trade$pair     <- interaction(f_trade$impcode, f_trade$expcode)
 
 # Fit generalized linear model based on specifications
 partials <- feglm(
-  formula = trade ~ eu_enlargement + other_fta | exp_year + imp_year + pair, 
-  data    = f_trade, 
+  formula = trade ~ eu_enlargement + other_fta | exp_year + imp_year + pair,
+  data    = f_trade,
   family  = poisson()
 )$coefficient  # We just need the coefficients for computation
 ```
@@ -708,28 +702,23 @@ partials <- feglm(
 ```{r}
 # Sort trade matrix to make it easier to find imp/exp pairs
 t_trade <- TradeData0014[order(
-  TradeData0014$exporter, 
-  TradeData0014$importer, 
+  TradeData0014$exporter,
+  TradeData0014$importer,
   TradeData0014$year
 ),]
 
-t_trade$eu_effect <- NA      # This creates new column eu_effect
-
+t_trade$eu_effect <- NA      # this creates a new column with the partial effect of EU membership for new EU pairs
 i <- 1
 # Effect of EU entrance on country based on partial, if entry happened
-invisible(by(t_trade, list(t_trade$expcode, t_trade$impcode), function(row) { 
-  
-  # This is an effective boolean; was this a new EU pair created within time span?
-  is_new_eu_pair <- tail(row$eu_enlargement, 1) - head(row$eu_enlargement, 1)
-
-  # If it was, give it the computed partial eu_enlargement coefficient; if not, leave it unset
-  t_trade[i, "eu_effect"] <<- is_new_eu_pair * partials[1]
-  
-  i <<- i + nrow(row)         # Increment index to start at the next imp/exp pair
-  
+invisible(by(t_trade, list(t_trade$expcode, t_trade$impcode), function(row) {
+  # Was a new EU pair created within time span?
+  t_trade[i:(i+nrow(row)-1), "eu_effect"] <<- diff(row$eu_enlargement, lag=nrow(row)-1)
+  i <<- i + nrow(row)
 }))
+# If added to EU, give it the computed partial eu_enlargement coefficient as the effect
+t_trade$eu_effect = t_trade$eu_effect * partials[1]
 
-# Data to be finally fed to the function; only subset with eu_effect will be used
+# Data to be finally fed to the function
 data <- t_trade[t_trade$year == 2000,]   # In example, 1892 Entries, 5676 removed
 head(data)
 ```
@@ -737,13 +726,16 @@ head(data)
 #### Running Actual Computations
 
 ```{r}
+## Difference between w_mult and w_o_mult is how trade balance is considered
+## mult = TRUE assumes multiplicative trade balances; false assumes additive
+
 w_mult = ge_gravity(
   exp_id = data$expcode,    # Origin country associated with each observation
   imp_id = data$impcode,    # Destination country associated with each observation
   flows  = data$trade,      # Observed trade flows in the data for the year being used as the baseline
   beta   = data$eu_effect,  # “Partial” change in trade, obtained as coefficient from gravity estimation
   theta  = 4,               # Trade elasticity
-  mult   = TRUE,            # 
+  mult   = TRUE,            # Assume trade balance is a multiplicative component of national expenditure
   data   = data
 )
 
@@ -796,8 +788,8 @@ head(w_mult)
 Before running comparisons, we need to slightly modify the results data to sync with our new format.
 
 ```{r}
-# Notice that the Stata counterpart returned all years with a sparse 
-# selection labeled with computed values. Ours just returns the new data 
+# Notice that the Stata counterpart returned all years with a sparse
+# selection labeled with computed values. Ours just returns the new data
 # by default or tags it onto the data provided in the `data` parameter.
 
 # To make it sync, just extract a year.
@@ -850,7 +842,7 @@ message("Max difference: ", max(abs(results$X_mult - w_mult$new_trade)))
 
 This is an advanced technique that requires a basic understanding
 of the model being solved. I would recommend reading either Section
-4.3 of Head & Mayer (2014) or Ch. 2 of Yotov, Piermartini, Monteiro, 
+4.3 of Head & Mayer (2014) or Ch. 2 of Yotov, Piermartini, Monteiro,
 & Larch (2016) before implementing.
 
 One common issue that researchers new to these methods should be aware
@@ -863,12 +855,12 @@ error. Not all publicly available trade data sets include internal
 trade values. But some that do include [WIOD](http://www.wiod.org/home),
 [Eora MRIO](https://worldmrio.com/), and the data set made available
 by [UNCTAD](https://vi.unctad.org/tpa/index.html) as part of
-their online course on trade policy analysis (see Yotov, Piermartini, 
+their online course on trade policy analysis (see Yotov, Piermartini,
 Monteiro, & Larch, 2016.)
 
-Depending on interest, future versions could feature additional options 
-such as allowances for tariff revenues and/or multiple sectors. If you 
-believe you have found an error that can be replicated, or have other 
+Depending on interest, future versions could feature additional options
+such as allowances for tariff revenues and/or multiple sectors. If you
+believe you have found an error that can be replicated, or have other
 suggestions for improvements, please feel free to \
 [contact me](mailto:tomzylkin@gmail.com).
 
@@ -877,8 +869,8 @@ suggestions for improvements, please feel free to \
 
 # Acknowledgements
 
-The basic idea of using fixed point iteration to solve the gravity model 
-has previously been implemented in Stata by Head & Mayer (2014) and Anderson, 
+The basic idea of using fixed point iteration to solve the gravity model
+has previously been implemented in Stata by Head & Mayer (2014) and Anderson,
 Larch, & Yotov (2015).
 
 
@@ -887,7 +879,7 @@ Larch, & Yotov (2015).
 # Suggested citation
 
 If you are using this command in your research, I would appreciate
-if you would cite 
+if you would cite
 
 - Baier, Scott L., Yoto V. Yotov, and Thomas Zylkin. "On the widely
 differing effects of free trade agreements: Lessons from twenty years

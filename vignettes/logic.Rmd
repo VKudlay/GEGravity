@@ -21,13 +21,13 @@ library(GEGravity)
 
 # Program Execution
 
-In example.Rmd, we obtained the following preprocessed data: 
+In example.Rmd, we obtained the following preprocessed data:
 
 ```{r}
 library(alpaca)  # Needed for partial coefficients
 
 # Generate foreign trade subset
-f_trade <- TradeData0014[TradeData0014$exporter != TradeData0014$importer,]             
+f_trade <- TradeData0014[TradeData0014$exporter != TradeData0014$importer,]
 f_trade$trade <- f_trade$trade / max(f_trade$trade)
 
 # classify FEs for components to be absorbed (finding variable interactions)
@@ -37,33 +37,32 @@ f_trade$pair     <- interaction(f_trade$impcode, f_trade$expcode)
 
 # Fit generalized linear model based on specifications
 partials <- feglm(
-  formula = trade ~ eu_enlargement + other_fta | exp_year + imp_year + pair, 
-  data    = f_trade, 
+  formula = trade ~ eu_enlargement + other_fta | exp_year + imp_year + pair,
+  data    = f_trade,
   family  = poisson()
 )$coefficient  # We just need the coefficients for computation
 
 # Sort matrix to make it easier to find imp/exp pairs
 t_trade <- TradeData0014[order(TradeData0014$exporter, TradeData0014$importer, TradeData0014$year),]
-t_trade$eu_effect <- NA      # This creates new column eu_effect
 
+t_trade$eu_effect <- NA      # this creates a new column with the partial effect of EU membership for new EU pairs
 i <- 1
 # Effect of EU entrance on country based on partial, if entry happened
-invisible(by(t_trade, list(t_trade$expcode, t_trade$impcode), function(row) { 
-  # This is an effective boolean; was this a new EU pair created within time span?
-  is_new_eu_pair <- tail(row$eu_enlargement, 1) - head(row$eu_enlargement, 1)
-  # If it was, give it the computed partial eu_enlargement coefficient; if not, leave it unset
-  t_trade[i, "eu_effect"] <<- is_new_eu_pair * partials[1]
-  
-  i <<- i + nrow(row)         # Increment index to start at the next imp/exp pair
+invisible(by(t_trade, list(t_trade$expcode, t_trade$impcode), function(row) {
+  # Was a new EU pair created within time span?
+  t_trade[i:(i+nrow(row)-1), "eu_effect"] <<- diff(row$eu_enlargement, lag=nrow(row)-1)
+  i <<- i + nrow(row)
 }))
+# If added to EU, give it the computed partial eu_enlargement coefficient as the effect
+t_trade$eu_effect = t_trade$eu_effect * partials[1]
 
-# Data to be finally fed to the function; only subset with eu_effect will be used
+# Data to be finally fed to the function
 data <- t_trade[t_trade$year == 2000,]   # In example, 1892 Entries, 5676 removed
 
 head(data)
 ```
 
-Then, we ran the ge_gravity function: 
+Then, we ran the ge_gravity function:
 
 ```{r}
 head(ge_gravity(
@@ -88,14 +87,14 @@ theta  <- 4
 mult   <- FALSE
 ```
 
-In the following, we are going to trace and test the algorithm as if it were being called. 
+In the following, we are going to trace and test the algorithm as if it were being called.
 
 As an assumption:
-- $i$ indices are defined for each origin/exporter, and matrices enumerable by them are Nx1 matrices. Sums for all $i$ are generally defined by colSums 
-- $j$ indices are defined for each destination/importer, and matrices enumerable by them are 1xN matrices. Sums for all $j$ are generally defined by rowSums 
+- $i$ indices are defined for each origin/exporter, and matrices enumerable by them are Nx1 matrices. Sums for all $i$ are generally defined by colSums
+- $j$ indices are defined for each destination/importer, and matrices enumerable by them are 1xN matrices. Sums for all $j$ are generally defined by rowSums
 - Column- and Row-wise summations will be done explicitly, and R's vector math operations will not be assumed to facilitate it.
 
-To be safe and explanatory, we will also define a few functions: 
+To be safe and explanatory, we will also define a few functions:
 - Typesafe function \code{ts} that can verify that our initial dimensions hold and that no $\texttt{NA}$ values are introduced.
 - Sanity function \code{sanity} that will make sure that a vector/matrix does not change cardinality illogically.
 - \code{printHead} just to be lazy and show only a tiny subset of data without much code.
@@ -125,8 +124,8 @@ ts <- function(Vec, Val, line = "?") {
 sanity <- function(name, Vec, dstr) {
   message(" > Sanity Check: ")
   for (i in 1:length(Vec))
-    message("  - dim(", name[i], ") = ", 
-      dim(Vec[[i]])[1], " x ", dim(Vec[[i]])[2], 
+    message("  - dim(", name[i], ") = ",
+      dim(Vec[[i]])[1], " x ", dim(Vec[[i]])[2],
       " (defined for ", dstr[i], ")"
     )
 }
@@ -141,7 +140,7 @@ X   <- t(matrix(flows, n, n)) # Square the matrix
 printHead(X)
 ```
 
-Then, set ${\texttt B} \ (= e^{\beta})$ to be the matrix of partial effects. 
+Then, set ${\texttt B} \ (= e^{\beta})$ to be the matrix of partial effects.
 Notice that the diagonal must be set to 0.
 
 ```{r}
@@ -179,7 +178,7 @@ sanity(c("X"), list(X), c("i and j"))
 
 Now, we are almost done. In this model, we want to build up:
 
-- The change in price levels in each country $\hat{P_j}$ for all importers. 
+- The change in price levels in each country $\hat{P_j}$ for all importers.
 
 - The Gross Estimate General Welfare $\hat{W}_{j}$ for all importers.
 
@@ -227,15 +226,15 @@ $\sum_{i}Y_{i}\widehat{w}_{i}=\sum_{i}Y_{i}$.
 w_hat <- ts(w_hat, w_hat * (sum(Y) / sum(Y*w_hat)))
 ```
 
-#### Step 3: Update 
+#### Step 3: Update
 $\widehat{P}_{j}^{-\theta}=\left[\sum_{k}\pi_{kj}\widehat{w}_{k}^{-\theta}e^{b\times FTA_{kj}}\right] \forall \ j$.
 
 ```{r}
 P_hat <- ts(P_hat, (t(Pi) * t(B)) %*% (w_hat^(-theta)))
 ```
 
-#### Step 4: Update 
-$E_{j}^{\prime}=Y_{j}\widehat{w}_{j}+D_{j} \ \forall \ j$. 
+#### Step 4: Update
+$E_{j}^{\prime}=Y_{j}\widehat{w}_{j}+D_{j} \ \forall \ j$.
 
 ```{r}
 if (mult) {
@@ -250,7 +249,7 @@ if (mult) {
 
 ```{r}
 p1 <- (Pi * B)
-p2 <- kronecker((w_hat^(-theta)), matrix(1,1,n)) 
+p2 <- kronecker((w_hat^(-theta)), matrix(1,1,n))
 p3 <- kronecker(t(P_hat), matrix(1,n,1))
 
 Pi_new <- ts(Pi, p1 * p2 / p3)
@@ -258,7 +257,7 @@ Pi_new <- ts(Pi, p1 * p2 / p3)
 X_new <- ts(X, Pi_new * kronecker(t(E), matrix(1,n,1)))
 ```
 
-From there, we just need a way to check convergence to a steady-state, so let's put it all together: 
+From there, we just need a way to check convergence to a steady-state, so let's put it all together:
 
 ```{r}
 # Initialize w_i_hat = P_j_hat = 1

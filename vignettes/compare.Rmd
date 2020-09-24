@@ -21,7 +21,7 @@ library(GEGravity)
 
 So, we just discussed all of the logic behind it, so let us just run the example normally and get the data.
 
-# Running The Algorithm 
+# Running The Algorithm
 
 ```{r, echo=FALSE}
 library(alpaca)  # Needed for partial coefficients
@@ -44,8 +44,8 @@ f_trade$pair     <- interaction(f_trade$impcode, f_trade$expcode)
 
 # Fit generalized linear model based on specifications
 partials <- feglm(
-  formula = trade ~ eu_enlargement + other_fta | exp_year + imp_year + pair, 
-  data    = f_trade, 
+  formula = trade ~ eu_enlargement + other_fta | exp_year + imp_year + pair,
+  data    = f_trade,
   family  = poisson()
 )$coefficient  # We just need the coefficients for computation
 ```
@@ -53,28 +53,23 @@ partials <- feglm(
 ```{r}
 # Sort trade matrix to make it easier to find imp/exp pairs
 t_trade <- TradeData0014[order(
-  TradeData0014$exporter, 
-  TradeData0014$importer, 
+  TradeData0014$exporter,
+  TradeData0014$importer,
   TradeData0014$year
 ),]
 
-t_trade$eu_effect <- NA      # This creates new column eu_effect
-
+t_trade$eu_effect <- NA      # this creates a new column with the partial effect of EU membership for new EU pairs
 i <- 1
 # Effect of EU entrance on country based on partial, if entry happened
-invisible(by(t_trade, list(t_trade$expcode, t_trade$impcode), function(row) { 
-  
-  # This is an effective boolean; was this a new EU pair created within time span?
-  is_new_eu_pair <- tail(row$eu_enlargement, 1) - head(row$eu_enlargement, 1)
-
-  # If it was, give it the computed partial eu_enlargement coefficient; if not, leave it unset
-  t_trade[i, "eu_effect"] <<- is_new_eu_pair * partials[1]
-  
-  i <<- i + nrow(row)         # Increment index to start at the next imp/exp pair
-  
+invisible(by(t_trade, list(t_trade$expcode, t_trade$impcode), function(row) {
+  # Was a new EU pair created within time span?
+  t_trade[i:(i+nrow(row)-1), "eu_effect"] <<- diff(row$eu_enlargement, lag=nrow(row)-1)
+  i <<- i + nrow(row)
 }))
+# If added to EU, give it the computed partial eu_enlargement coefficient as the effect
+t_trade$eu_effect = t_trade$eu_effect * partials[1]
 
-# Data to be finally fed to the function; only subset with eu_effect will be used
+# Data to be finally fed to the function
 data <- t_trade[t_trade$year == 2000,]   # In example, 1892 Entries, 5676 removed
 head(data)
 ```
@@ -82,13 +77,16 @@ head(data)
 #### Running Actual Computations
 
 ```{r}
+## Difference between w_mult and w_o_mult is how trade balance is considered
+## mult = TRUE assumes multiplicative trade balances; false assumes additive
+
 w_mult = ge_gravity(
   exp_id = data$expcode,    # Origin country associated with each observation
   imp_id = data$impcode,    # Destination country associated with each observation
   flows  = data$trade,      # Observed trade flows in the data for the year being used as the baseline
   beta   = data$eu_effect,  # “Partial” change in trade, obtained as coefficient from gravity estimation
   theta  = 4,               # Trade elasticity
-  mult   = TRUE,            # 
+  mult   = TRUE,            # Assume trade balance is a multiplicative component of national expenditure
   data   = data
 )
 
@@ -97,7 +95,7 @@ w_o_mult = ge_gravity(
   imp_id = data$impcode,    # Destination country associated with each observation
   flows  = data$trade,      # Observed trade flows in the data for the year being used as the baseline
   beta   = data$eu_effect,  # “Partial” change in trade, obtained as coefficient from gravity estimation
-  theta  = 4,                # Trade elasticity
+  theta  = 4,               # Trade elasticity
   mult   = FALSE,           # Assume trade balance is an additive component of national expenditure
   data   = data
 )
@@ -119,13 +117,13 @@ head(w_mult)
 
 # Comparison with Stata Counterpart
 
-As mentioned, this package is intended to mimic the functionality of the Stata package of the same name, so we will do a quick comparison of this data relative to the same computation from the Stata counterpart. 
+As mentioned, this package is intended to mimic the functionality of the Stata package of the same name, so we will do a quick comparison of this data relative to the same computation from the Stata counterpart.
 
 Before running comparisons, we need to slightly modify the results data to sync with our new format.
 
 ```{r}
-# Notice that the Stata counterpart returned all years with a sparse 
-# selection labeled with computed values. Ours just returns the new data 
+# Notice that the Stata counterpart returned all years with a sparse
+# selection labeled with computed values. Ours just returns the new data
 # by default or tags it onto the data provided in the `data` parameter.
 
 # To make it sync, just extract a year.

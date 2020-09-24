@@ -34,7 +34,7 @@ This example RMD uses the example data \code{TradeData0014}. The data set consis
 head(TradeData0014)
 ```
 
-Suppose the researcher wishes to use this data set to quantify general equilibrium trade and welfare effects of the EU enlargements that took place between 2000-2014. To first obtain the partial effects of these enlargements on trade flows, a PPML (Poisson pseudo-maximum likelihood) gravity specification may be used. Specifically, to obtain the "partial" estimates of the effects of EU enlargements on trade, we can use the following three-way gravity specification: 
+Suppose the researcher wishes to use this data set to quantify general equilibrium trade and welfare effects of the EU enlargements that took place between 2000-2014. To first obtain the partial effects of these enlargements on trade flows, a PPML (Poisson pseudo-maximum likelihood) gravity specification may be used. Specifically, to obtain the "partial" estimates of the effects of EU enlargements on trade, we can use the following three-way gravity specification:
 
 $$X_{ijt} = \exp\bigg[\ln(\alpha_{it}) + \ln(\alpha_{jt}) + \ln(\alpha_{ij}) + \beta \cdot FTA_{ijt}\bigg] + e_{ijt}$$
 
@@ -44,7 +44,7 @@ The Stata equivalent of this package uses the ppmlhdfe command created by Correi
 library(alpaca)  # Needed for partial coefficients
 
 # Generate foreign trade subset
-f_trade <- TradeData0014[TradeData0014$exporter != TradeData0014$importer,]             
+f_trade <- TradeData0014[TradeData0014$exporter != TradeData0014$importer,]
 
 # Normalize trade data to unit interval
 f_trade$trade <- f_trade$trade / max(f_trade$trade)
@@ -56,8 +56,8 @@ f_trade$pair     <- interaction(f_trade$impcode, f_trade$expcode)
 
 # Fit generalized linear model based on specifications
 partials <- feglm(
-  formula = trade ~ eu_enlargement + other_fta | exp_year + imp_year + pair, 
-  data    = f_trade, 
+  formula = trade ~ eu_enlargement + other_fta | exp_year + imp_year + pair,
+  data    = f_trade,
   family  = poisson()
 )$coefficient  # We just need the coefficients for computation
 
@@ -68,42 +68,38 @@ In addition to estimating the effects of EU enlargements on new EU pairs, this e
 
 ***
 
-Further pre-processing is needed. Specifically, the function needs to get a series 
-of importer/exporter pairs with their appropriate impacts of joining the EU, 
-which is either the the eu_enlargement partial computed above or 0 (because they didn't join). 
-To obtain the general equilibrium effects of these new additions to the EU (as of 2000) 
+Further pre-processing is needed. Specifically, the function needs to get a series
+of importer/exporter pairs with their appropriate impacts of joining the EU,
+which is either the the eu_enlargement partial computed above or 0 (because they didn't join).
+To obtain the general equilibrium effects of these new additions to the EU (as of 2000)
 
 ```{r}
 # Sort matrix to make it easier to find imp/exp pairs
 t_trade <- TradeData0014[order(
-  TradeData0014$exporter, 
-  TradeData0014$importer, 
+  TradeData0014$exporter,
+  TradeData0014$importer,
   TradeData0014$year),
 ]
 
-t_trade$eu_effect <- NA      # This creates new column eu_effect
-
+t_trade$eu_effect <- NA      # this creates a new column with the partial effect of EU membership for new EU pairs
 i <- 1
 # Effect of EU entrance on country based on partial, if entry happened
-invisible(by(t_trade, list(t_trade$expcode, t_trade$impcode), function(row) { 
-  
-  # This is an effective boolean; was this a new EU pair created within time span?
-  is_new_eu_pair <- tail(row$eu_enlargement, 1) - head(row$eu_enlargement, 1)
-
-  # If it was, give it the computed partial eu_enlargement coefficient; if not, leave it unset
-  t_trade[i, "eu_effect"] <<- is_new_eu_pair * partials[1]
-  
-  i <<- i + nrow(row)         # Increment index to start at the next imp/exp pair
+invisible(by(t_trade, list(t_trade$expcode, t_trade$impcode), function(row) {
+  # Was a new EU pair created within time span?
+  t_trade[i:(i+nrow(row)-1), "eu_effect"] <<- diff(row$eu_enlargement, lag=nrow(row)-1)
+  i <<- i + nrow(row)
 }))
+# If added to EU, give it the computed partial eu_enlargement coefficient as the effect
+t_trade$eu_effect = t_trade$eu_effect * partials[1]
 
-# Data to be finally fed to the function; only subset with eu_effect will be used
+# Data to be finally fed to the function
 data <- t_trade[t_trade$year == 2000,]   # In example, 1892 Entries, 5676 removed
 
 # head(data) # First 10 rows
 data[sample(1:nrow(data), 10),]  # 10 random rows
 ```
 
-So now, we have data, so we should be able to run the function as follows: 
+So now, we have data, so we should be able to run the function as follows:
 
 ```{r}
 ge_results <- ge_gravity(
@@ -123,50 +119,46 @@ This assumes a standard trade elasticity value of $\theta = 4$. The input for \c
 
 We can also change how trade imbalances enter the model. The default (exibited above with mult = FALSE) is to assume that they enter expenditure additively (i.e., $E_j = Y_j + D_j$), but one can also change the model so that expenditure is instead a fixed multiple of income (i.e., let $E_j = \delta_j Y_j$.) by setting \code{mult = TRUE}. While using multiplicative imbalances instead of additive balances changes the results slightly, they are still qualitatively very similar.
 
-An important point about the above exercises is that the initial partial effect is estimated with some uncertainty. The GE results that were calculated may paint a misleading picture because they do not take this uncertainty into account. For this reason, it is considered good practice to use a bootstrap method to construct confidence intervals for the GE calculations. This type of procedure is easily coded using `ge_gravity`. 
+An important point about the above exercises is that the initial partial effect is estimated with some uncertainty. The GE results that were calculated may paint a misleading picture because they do not take this uncertainty into account. For this reason, it is considered good practice to use a bootstrap method to construct confidence intervals for the GE calculations. This type of procedure is easily coded using `ge_gravity`.
 
 ```{r}
 run_count <- 0
 
 # Compute partials and run simulation for sample
 runGEG <- function(f_trade, indices) {
-  
+
   # print(f_trade)
   f_trade <- f_trade[indices, ]
   # print(f_trade)
 
   # Fit generalized linear model based on specifications
   partials <- feglm(
-    formula = trade ~ eu_enlargement + other_fta | exp_year + imp_year + pair, 
-    data    = f_trade, 
+    formula = trade ~ eu_enlargement + other_fta | exp_year + imp_year + pair,
+    data    = f_trade,
     family  = poisson()
   )$coefficient  # We just need the coefficients for computation
-  
+
   # Sort matrix to make it easier to find imp/exp pairs
   t_trade <- TradeData0014[order(
-    TradeData0014$exporter, 
-    TradeData0014$importer, 
+    TradeData0014$exporter,
+    TradeData0014$importer,
     TradeData0014$year),
   ]
-  
-  t_trade$eu_effect <- NA      # This creates new column eu_effect
-  
+
+  t_trade$eu_effect <- NA      # this creates a new column with the partial effect of EU membership for new EU pairs
   i <- 1
   # Effect of EU entrance on country based on partial, if entry happened
-  invisible(by(t_trade, list(t_trade$expcode, t_trade$impcode), function(row) { 
-    
-    # This is an effective boolean; was this a new EU pair created within time span?
-    is_new_eu_pair <- tail(row$eu_enlargement, 1) - head(row$eu_enlargement, 1)
-  
-    # If it was, give it the computed partial eu_enlargement coefficient; if not, leave it unset
-    t_trade[i, "eu_effect"] <<- is_new_eu_pair * partials[1]
-    
-    i <<- i + nrow(row)         # Increment index to start at the next imp/exp pair
+  invisible(by(t_trade, list(t_trade$expcode, t_trade$impcode), function(row) {
+    # Was a new EU pair created within time span?
+    t_trade[i:(i+nrow(row)-1), "eu_effect"] <<- diff(row$eu_enlargement, lag=nrow(row)-1)
+    i <<- i + nrow(row)
   }))
-  
-  # Data to be finally fed to the function; only subset with eu_effect will be used
+  # If added to EU, give it the computed partial eu_enlargement coefficient as the effect
+  t_trade$eu_effect = t_trade$eu_effect * partials[1]
+
+  # Data to be finally fed to the function
   data <- t_trade[t_trade$year == 2000,]   # In example, 1892 Entries, 5676 removed
-  
+
   ge_results <- ge_gravity(
     exp_id = data$expcode,    # Origin country associated with each observation
     imp_id = data$impcode,    # Destination country associated with each observation
@@ -175,16 +167,16 @@ runGEG <- function(f_trade, indices) {
     theta  = 4,               # Trade elasticity
     mult   = FALSE           # Assume trade balance is an additive component of national expenditure
   )
-  
+
   run_count <<- run_count + 1
   # cat("\r", " - Run ", run_count) # If you're doing a lot in real-time, uncomment to track progress
-  
+
   return(unlist(ge_results[3:7], use.names=FALSE))
 }
 
 # Get the base foreign trade matrix
 # Generate foreign trade subset
-f_trade <- TradeData0014[TradeData0014$exporter != TradeData0014$importer,]             
+f_trade <- TradeData0014[TradeData0014$exporter != TradeData0014$importer,]
 
 # Normalize trade data to unit interval
 f_trade$trade <- f_trade$trade / max(f_trade$trade)
@@ -195,7 +187,7 @@ f_trade$imp_year <- interaction(f_trade$impcode, f_trade$year)
 f_trade$pair     <- interaction(f_trade$impcode, f_trade$expcode)
 
 library(alpaca)   # Needed for partial coefficients
-library(boot)     # Easy bootstrapping 
+library(boot)     # Easy bootstrapping
 
 set.seed(12345)
 myBootstrap <- boot(f_trade, runGEG, R=10) # Only doing 10 runs
@@ -211,6 +203,6 @@ head(btsp_est)
 ```{r}
 # Get standard error
 std_err  <- apply(myBootstrap$t, 2, sd)
-dim(std_err) <- c(length(std_err)/5, 5) 
+dim(std_err) <- c(length(std_err)/5, 5)
 head(std_err)
 ```

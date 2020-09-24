@@ -60,7 +60,7 @@
 #'      Please check them out!
 #'
 #' @examples
-#' # For a detailed explination, check out the vignettes (see \code{browseVignettes("GEGravity")})
+#' # For a detailed explanation, check out the vignettes (see \code{browseVignettes("GEGravity")})
 #'
 #' # Foreign trade subset
 #' f_trade <- TradeData0014[TradeData0014$exporter != TradeData0014$importer,]
@@ -87,44 +87,42 @@
 #'   TradeData0014$year
 #' ),]
 #'
-#' t_trade$eu_effect <- NA      # This creates new column eu_effect
-#'
+#' t_trade$eu_effect <- NA      # Column for the partial effect of EU membership for new EU pairs
 #' i <- 1
 #' # Effect of EU entrance on country based on partial, if entry happened
 #' invisible(by(t_trade, list(t_trade$expcode, t_trade$impcode), function(row) {
-#'
-#'   # This is an effective boolean; was this a new EU pair created within time span?
-#'   is_new_eu_pair <- tail(row$eu_enlargement, 1) - head(row$eu_enlargement, 1)
-#'
-#'   # If it was, give it the computed partial eu_enlargement coefficient; if not, leave it unset
-#'   t_trade[i, "eu_effect"] <<- is_new_eu_pair * partials[1]
-#'
-#'   i <<- i + nrow(row)         # Increment index to start at the next imp/exp pair
-#'
+#'   # Was a new EU pair created within time span?
+#'   t_trade[i:(i+nrow(row)-1), "eu_effect"] <<- diff(row$eu_enlargement, lag=nrow(row)-1)
+#'   i <<- i + nrow(row)
 #' }))
+#' # If added to EU, give it the computed partial eu_enlargement coefficient as the effect
+#' t_trade$eu_effect = t_trade$eu_effect * partials[1]
 #'
-#' # Data to be finally fed to the function; only subset with eu_effect will be used
+#' # Data to be finally fed to the function
 #' data <- t_trade[t_trade$year == 2000,]
 #'
 #' ## Running Actual Computations
 #'
+#' ## Difference between w_mult and w_o_mult is how trade balance is considered
+#' ## mult = TRUE assumes multiplicative trade balances; false assumes additive
+#'
 #' w_mult = ge_gravity(
-#'   exp_id = data$expcode,    # Origin country associated with each observation
-#'   imp_id = data$impcode,    # Destination country associated with each observation
-#'   flows  = data$trade,      # Observed trade flows for the baseline year
-#'   beta   = data$eu_effect,  # “Partial” trade change; coefficient from gravity estimation
-#'   theta  = 4,               # Trade elasticity
-#'   mult   = TRUE,            # Assume national expenditure is fixed multiple of nat. output
+#'   exp_id = data$expcode,     # Origin country associated with each observation
+#'   imp_id = data$impcode,     # Destination country associated with each observation
+#'   flows  = data$trade,       # Observed trade flows for the baseline year
+#'   beta   = data$eu_effect,   # “Partial” trade change; coefficient from gravity estimation
+#'   theta  = 4,                # Trade elasticity
+#'   mult   = TRUE,             # Assume national expenditure is fixed multiple of nat. output
 #'   data   = data
 #' )
 #'
 #' w_o_mult = ge_gravity(
-#'   data$expcode,    # Origin country associated with each observation
-#'   data$impcode,    # Destination country associated with each observation
-#'   data$trade,      # Observed trade flows for the baseline year
-#'   data$eu_effect,  # “Partial” change in trade; coefficient from gravity estimation
-#'   4,               # Trade elasticity
-#'   FALSE,           # Assume trade balance is additive component of nat. expenditure
+#'   data$expcode,              # Origin country associated with each observation
+#'   data$impcode,              # Destination country associated with each observation
+#'   data$trade,                # Observed trade flows for the baseline year
+#'   data$eu_effect,            # “Partial” change in trade; coefficient from gravity estimation
+#'   4,                         # Trade elasticity
+#'   FALSE,                     # Assume trade balance is additive component of nat. expenditure
 #'   data
 #' )
 #'
