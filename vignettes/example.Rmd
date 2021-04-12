@@ -131,7 +131,7 @@ runGEG <- function(f_trade, indices) {
   f_trade <- f_trade[indices, ]
   # print(f_trade)
 
-  # Fit generalized linear model based on specifications
+  # Fit gravity model using PPML with three-way fixed effects
   partials <- feglm(
     formula = trade ~ eu_enlargement + other_fta | exp_year + imp_year + pair,
     data    = f_trade,
