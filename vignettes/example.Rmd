@@ -124,7 +124,7 @@ An important point about the above exercises is that the initial partial effect 
 ```{r}
 run_count <- 0
 
-# Compute partials and run simulation for sample
+# Create a function to pass to boot() function that accepts bootstrapped indices and computes partials and simulation results for each bootstrapped sample
 runGEG <- function(f_trade, indices) {
 
   # print(f_trade)
