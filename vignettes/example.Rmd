@@ -54,7 +54,7 @@ f_trade$exp_year <- interaction(f_trade$expcode, f_trade$year)
 f_trade$imp_year <- interaction(f_trade$impcode, f_trade$year)
 f_trade$pair     <- interaction(f_trade$impcode, f_trade$expcode)
 
-# Fit generalized linear model based on specifications
+# Fit gravity model using PPML with exporter-time, importer-time, and exporter-importer FEs
 partials <- feglm(
   formula = trade ~ eu_enlargement + other_fta | exp_year + imp_year + pair,
   data    = f_trade,
@@ -89,17 +89,17 @@ invisible(by(t_trade, list(t_trade$expcode, t_trade$impcode), function(row) {
   t_trade[i:(i+nrow(row)-1), "eu_effect"] <<- diff(row$eu_enlargement, lag=nrow(row)-1)
   i <<- i + nrow(row)
 }))
-# If added to EU, give it the computed partial eu_enlargement coefficient as the effect
+# If added to EU, give it the computed partial eu_enlargement coefficient (0.224) as the effect
 t_trade$eu_effect = t_trade$eu_effect * partials[1]
 
-# Data to be finally fed to the function
+# Data to be finally fed to the function (we baee the counterfactual on the year 2000.)
 data <- t_trade[t_trade$year == 2000,]   # In example, 1892 Entries, 5676 removed
 
 # head(data) # First 10 rows
 data[sample(1:nrow(data), 10),]  # 10 random rows
 ```
 
-So now, we have data, so we should be able to run the function as follows:
+So now, we have data, so we should be able to run the ge_gravity function as follows:
 
 ```{r}
 ge_results <- ge_gravity(
@@ -115,11 +115,11 @@ ge_results[sample(1:nrow(ge_results), 10),] # 10 random rows
 ```
 
 
-This assumes a standard trade elasticity value of $\theta = 4$. The input for \code{beta} is given by a variable called \code{eu_effect}, which in this case is equal to 0.224 for new EU pairs formed during the period and equal to 0 otherwise. Because of the small size of the sample, it solves almost instantly. Unsurprisingly, the new EU members (Bulgaria, Croatia, Czech Republic, Estonia, Hungary, Latvia, Lithuania, Malta, Poland, Romania, Slovakia, and Slovenia) realize the largest welfare gains from their joining the EU, with existing EU countries also gaining. All countries not included in the agreement experience small losses due to trade diversion, with the largest losses accruing to Russia.
+This assumes a standard trade elasticity value of $\theta = 4$. The input for \code{beta} is given by a variable called \code{eu_effect}, which in this case is equal to 0.224 for new EU pairs formed during the period and equal to 0 otherwise. Because of the small size of the sample, it solves almost instantly. Unsurprisingly, the new EU members (Bulgaria, Croatia, Czech Republic, Estonia, Hungary, Latvia, Lithuania, Malta, Poland, Romania, Slovakia, and Slovenia) realize the largest welfare gains from their joining the EU, with existing EU countries also gaining. All countries not included in the agreement experience small losses due to trade diversion, with the largest losses accruing to Russia. Sample results for the first 10 rows in the data are shown above for the changes in welfare, real wages, nomimal wages, and the local price index. Click on the right arrow to scroll to the right if they are not displayed above. In all cases, the number shown is the result computed for the exporting country.
 
 We can also change how trade imbalances enter the model. The default (exibited above with mult = FALSE) is to assume that they enter expenditure additively (i.e., $E_j = Y_j + D_j$), but one can also change the model so that expenditure is instead a fixed multiple of income (i.e., let $E_j = \delta_j Y_j$.) by setting \code{mult = TRUE}. While using multiplicative imbalances instead of additive balances changes the results slightly, they are still qualitatively very similar.
 
-An important point about the above exercises is that the initial partial effect is estimated with some uncertainty. The GE results that were calculated may paint a misleading picture because they do not take this uncertainty into account. For this reason, it is considered good practice to use a bootstrap method to construct confidence intervals for the GE calculations. This type of procedure is easily coded using `ge_gravity`.
+An important point about the above exercises is that the initial partial effect is estimated with some uncertainty. The GE results that were calculated may paint a misleading picture because they do not take this uncertainty into account. For this reason, it is considered good practice to use a bootstrap method to construct confidence intervals for the GE calculations. This type of procedure is easily coded using `ge_gravity`:
 
 ```{r}
 run_count <- 0
