@@ -68,7 +68,7 @@ In addition to estimating the effects of EU enlargements on new EU pairs, this e
 
 ***
 
-Further pre-processing is needed. Specifically, the function needs to get a series
+Before proceeding, further pre-processing is needed. Specifically, the function needs to get a series
 of importer/exporter pairs with their appropriate impacts of joining the EU,
 which is either the the eu_enlargement partial computed above or 0 (because they didn't join).
 To obtain the general equilibrium effects of these new additions to the EU (as of 2000)
