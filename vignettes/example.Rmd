@@ -92,7 +92,7 @@ invisible(by(t_trade, list(t_trade$expcode, t_trade$impcode), function(row) {
 # If added to EU, give it the computed partial eu_enlargement coefficient (0.224) as the effect
 t_trade$eu_effect = t_trade$eu_effect * partials[1]
 
-# Data to be finally fed to the function (we baee the counterfactual on the year 2000.)
+# Data to be finally fed to the function (we base the counterfactual on the year 2000.)
 data <- t_trade[t_trade$year == 2000,]   # In example, 1892 Entries, 5676 removed
 
 # head(data) # First 10 rows
