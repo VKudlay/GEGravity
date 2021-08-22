@@ -15,15 +15,25 @@ Suggested:
   alpaca (>= 0.3.1)    (to compute fixed effect GLM)
   rmarkdown (>= 2.1)   (to view the vignettes)
   boot (>= 1.3)        (to facilitate bootstrapping)
+  devtools (>=1.13.6)  (to install from github)
   knitr                (to knit the vignettes)
 
 ## How To Use
-We are currently in the process of submitting the package to CRAN. In the meantime, one can use the package in a streamlined manner as follows:
- - Download the `GEGravity/` folder or clone the repository and navigate to it.
- - Open `GEGravity.Rprog` in RStudio.
- - To see example of execution, theory, etc, run browseVignettes("GEGravity")
- - To load in package data, run data(...), i.e. data(TradeData0014)
+We are currently in the process of submitting the package to CRAN. In the meantime, one can use the package in a streamlined manner by installing from github. Use `devtools::install_github("VKudlay/GEGravity")`.
+
+Alternatively, either download the `GEGravity/` folder or clone the repository and navigate to it, then open `GEGravity.Rprog` in RStudio.
+
+To see example of execution, theory, etc, open the .Rmd files in the `Vignettes/` subfolder from within RStudio. To load in package data, run `data(...)`, i.e. `data(TradeData0014)`.
 
 ## Original Stata Package
 [Help File](http://www.tomzylkin.com/uploads/4/1/0/4/41048809/help_file.pdf)
 [Code](http://www.tomzylkin.com/uploads/4/1/0/4/41048809/ge_gravity.ado)
+
+## References
+Anderson, J. E. & Yotov, Y. V. (2016), “Terms of trade and global efficiency effects of free trade agreements, 1990–2002”, Journal of International Economics 99, 279–298.
+
+Baier, S. L., Yotov, Y. V., & Zylkin, T. (2019), “On the widely differing effects of free trade agreements: Lessons from twenty years of trade integration”, Journal of International Economics 116, 206–226.
+
+Egger, P., Larch, M., Staub, K. E., & Winkelmann, R. (2011), “The Trade Effects of Endogenous Preferential Trade Agreements”, American Economic Journal: Economic Policy 3(3), 113–143.
+
+Yotov, Y. V., Piermartini, R., Monteiro, J.-A., & Larch, M. (2016), An Advanced Guide to Trade Policy Analysis:  The Structural Gravity Model, World Trade Organization, Geneva.
