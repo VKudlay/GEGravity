@@ -178,9 +178,9 @@ sanity(c("X"), list(X), c("i and j"))
 
 Now, we are almost done. In this model, we want to build up:
 
-- The change in price levels in each country $\hat{P_j}$ for all importers.
+- The change in price levels in each country $\hat{P_j}$ for all exporters.
 
-- The change in welfare $\hat{W}_{j}$ for all importers.
+- The change in welfare $\hat{W}_{j}$ for all exporters.
 
 - The general equilibrium trade impact $\hat{X}_{ij}$ between all importers and exporters.
 
