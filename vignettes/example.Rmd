@@ -81,7 +81,7 @@ sort exporter importer year
 \code{by exporter importer: gen eu_effect = _b[eu_enlargement] * new_eu_pair
 ```
 
-
+In R, we do the following:
 ```{r}
 # Sort matrix to make it easier to find imp/exp pairs
 t_trade <- TradeData0014[order(
