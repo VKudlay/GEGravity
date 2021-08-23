@@ -465,9 +465,9 @@ Now, we are almost done. In this model, we want to build up:
 
 - The change in price levels in each country $\hat{P_j}$ for all importers.
 
-- The Gross Estimate General Welfare $\hat{W}_{j}$ for all importers.
+- The change in welfare $\hat{W}_{j}$ for all importers.
 
-- The Gross Estimate Trade Impact $\hat{X}_{ij}$ between all importers and exporters.
+- The general equilibrium trade impact (GETI) $\hat{X}_{ij}$ between all importers and exporters.
 
 The iterative algorithm provided will build these up iteratively, starting them off as 1-column matrices.
 
