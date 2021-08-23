@@ -212,6 +212,14 @@ of the appropriate pairs. To do this, we create a new variable whose value is ei
 the eu_enlargement partial computed above or 0. We will use the year 2000 as the baseline for 
 the general equilibrium counterfactual, so we assign these partial effects in the year 2000. 
 
+For Stata users, the Stata equivalent of this next step is:
+```
+sort exporter importer year
+\code{by exporter importer: gen new_eu_pair = (eu_enlargement[_N]-eu_enlargement[1])}                   
+\code{by exporter importer: gen eu_effect = _b[eu_enlargement] * new_eu_pair
+```
+
+In R, we do the following:
 ```{r}
 # Sort matrix to make it easier to find imp/exp pairs
 t_trade <- TradeData0014[order(
@@ -239,7 +247,7 @@ data <- t_trade[t_trade$year == 2000,]   # In example, 1892 Entries, 5676 remove
 head(data)
 ```
 
-So now, we have data, so we should be able to run the function as follows:
+Now that we have the data we need, we can run the ge_gravity function as follows:
 
 ```{r}
 ge_results <- ge_gravity(
