@@ -29,6 +29,9 @@ To see example of execution, theory, etc, open the .Rmd files in the `Vignettes/
 [Help File](http://www.tomzylkin.com/uploads/4/1/0/4/41048809/help_file.pdf)
 [Code](http://www.tomzylkin.com/uploads/4/1/0/4/41048809/ge_gravity.ado)
 
+## Funding acknowledgement
+Funding for this R package was provided by the Department for Digital, Culture, Media and Sport, United Kingdom.
+
 ## References
 Anderson, J. E. & Yotov, Y. V. (2016), “Terms of trade and global efficiency effects of free trade agreements, 1990–2002”, Journal of International Economics 99, 279–298.
 
