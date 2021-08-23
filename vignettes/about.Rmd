@@ -881,8 +881,7 @@ the Department for Digital, Culture, Media and Sport, United Kingdom.
 
 # Suggested citation
 
-If you are using this command in your research, I would appreciate
-if you would cite
+If you are using this command in your research, please cite
 
 - Baier, Scott L., Yoto V. Yotov, and Thomas Zylkin. "On the widely
 differing effects of free trade agreements: Lessons from twenty years
