@@ -35,14 +35,14 @@ To install from within in Stata, enter `ssc install ge_gravity, replace`.
 
 # Suggested citation
 
-If you are using this command in your research, please cite
+If you are using either of these packages in your research, please cite
 
 - Baier, Scott L., Yoto V. Yotov, and Thomas Zylkin. "On the widely
 differing effects of free trade agreements: Lessons from twenty years
 of trade integration". Journal of International Economics
 116 (2019): 206-226.
 
-The algorithm used in this command was specifically written for the
+The algorithm used in these packages was specifically written for the
 exercises performed in this paper. Section 6 of the paper provides
 a more detailed description of the underlying model and its connection
 to the literature.
