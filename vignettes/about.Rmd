@@ -384,7 +384,7 @@ As an assumption:
 To be safe and explanatory, we will also define a few functions:
 - Typesafe function `ts` that can verify that our initial dimensions hold and that no $\texttt{NA}$ values are introduced.
 - Sanity function `sanity` that will make sure that a vector/matrix does not change cardinality illogically.
-- `printHead` just to be lazy and show only a tiny subset of data without much code.
+- `printHead` to show only a tiny subset of data without much code.
 
 ```{r}
 printHead <- function(Vec, rows = 6, cols = 6) {
