@@ -14,7 +14,7 @@ Required:
 Suggested:  
 - alpaca (>= 0.3.1)   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (to compute fixed effect GLM)  
 - rmarkdown (>= 2.1)  &nbsp; (to view the vignettes)  
-- data.table (>= 1.14)       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (to facilitate bootstrapping)  
+- data.table (>= 1.14)       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (to facilitate bootstrapping)  
 - devtools (>=1.13.6)  &nbsp;&nbsp;&nbsp;(to install from github)  
 - knitr                &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;(to knit the vignettes)  
 
