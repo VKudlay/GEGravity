@@ -921,13 +921,15 @@ Mayer (2014)
 
 [Dekle, R., Eaton, J., & Kortum, S. (2007), “Unbalanced Trade”, American Economic Review 97(2), 351–355. Egger, P., Larch, M., Staub, K. E., & Winkelmann, R. (2011), “The Trade Effects of Endogenous Preferential](https://www.researchgate.net/publication/4981229_Unbalanced_Trade)
 
-[Trade Agreements”, American Economic Journal: Economic Policy 3(3), 113–143.](https://www.jstor.org/stable/41238105?seq=1)
+[Egger, P., Larch, M., Staub, K. E., & Winkelmann, R. (2011), “The Trade Effects of Endogenous Preferential Trade Agreements”, American Economic Journal: Economic Policy 3(3), 113–143.](https://www.jstor.org/stable/41238105?seq=1)
 
 [Felbermayr, G., Gröschl, J. K., & Heiland, I. (2018), “Undoing Europe in a new quantitative trade model”, Tech. rep., Ifo Working Paper.](https://ideas.repec.org/p/ces/ifowps/_250.html)
 
 [Head, K. & Mayer, T. (2014), “Gravity Equations: Workhorse, Toolkit, and Cookbook”, in G. Gopinath, E. Help- man, & K. Rogoff (eds.) Handbook of International Economics, vol. 4, pp. 131–195, North Holland, 4 ed.](http://www.cepii.fr/pdf_pub/wp/2013/wp2013-27.pdf)
 
 [Mayer, T., Vicard, V., & Zignago, S. (2018), “The cost of non-Europe, revisited”.](http://www.cepii.fr/PDF_PUB/wp/2018/wp2018-06.pdf)
+
+[Timmer, M.P., Dietzenbacher, E., Los, B., Stehrer, R. and De Vries, G.J., 2015. An illustrated user guide to the world input–output database: the case of global automotive production. Review of International Economics, 23(3), pp.575-605.](https://onlinelibrary.wiley.com/doi/full/10.1111/roie.12178?casa_token=_JZInGh_hO8AAAAA%3A71VfkDsx8FK4h8FH30U9iPH6FnXDmem0FrzmuSVnAfOaZ6RpqcVfiml_apbzCpOJTgpjxcO2Cw-2WLo)
 
 [Yotov, Y. V., Piermartini, R., Monteiro, J.-A., & Larch, M. (2016), An Advanced Guide to Trade Policy Analysis:
 The Structural Gravity Model, World Trade Organization, Geneva.](https://www.wto.org/english/res_e/booksp_e/advancedwtounctad2016_e.pdf)
