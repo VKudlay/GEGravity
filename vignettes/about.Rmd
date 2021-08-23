@@ -871,7 +871,9 @@ suggestions for improvements, please feel free to \
 
 The basic idea of using fixed point iteration to solve the gravity model
 has previously been implemented in Stata by Head & Mayer (2014) and Anderson,
-Larch, & Yotov (2015).
+Larch, & Yotov (2015). Funding for this R package was provided by
+the Department for Digital, Culture, Media and Sport, United Kingdom.
+
 
 
 
