@@ -7,17 +7,13 @@
 *! Journal of International Economics, 116, 206-226.
 
 clear all
-*global this_dir = "C:\Users\ztom\Google Drive\TOM LOCAL\PPML experiment\GE_gravity"
-global this_dir = "E:\Google drive\TOM LOCAL\PPML experiment\GE_gravity"
-
-cd "$this_dir"
 
 cap set matsize 800
 cap set matsize 11000
 cap set maxvar 32000
 
 
-use GE_gravity_example_data, clear
+use "https://github.com/VKudlay/GEGravity/blob/master/Stata/GE_gravity_example_data.dta?raw=true", clear
 * - Aggregate trade between 44 countries observed over 2000-2014, using years 2000, 2005, 2010, and 2014.
 * - Trade and domestic sales data aggregated from the WIOD database (see the "illustrated user guide" published by Timmer, Dietzenbacher, Los, Stehrer, and de Vries, Review of International Economics, 2015.)
 * - Information on FTAs is taken from the NSF-Kellogg database maintained by Scott Baier and Jeff Bergstrand.
