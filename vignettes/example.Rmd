@@ -90,37 +90,39 @@ t_trade <- TradeData0014[order(
   TradeData0014$year),
 ]
 
-t_trade$eu_effect <- NA      # this creates a new column with the partial effect of EU membership for new EU pairs
+t_trade$new_eu_pair <- NA
+t_trade$eu_effect   <- NA   # this creates a new column that will contain partial effect of EU membership for new EU pairs
 i <- 1
 # Effect of EU entrance on country based on partial, if entry happened
 invisible(by(t_trade, list(t_trade$expcode, t_trade$impcode), function(row) {
   # Was a new EU pair created within time span?
-  t_trade[i:(i+nrow(row)-1), "eu_effect"] <<- diff(row$eu_enlargement, lag=nrow(row)-1)
+  t_trade[i:(i+nrow(row)-1), "new_eu_pair"] <<- diff(row$eu_enlargement, lag=nrow(row)-1)
   i <<- i + nrow(row)
 }))
+
 # If added to EU, give it the computed partial eu_enlargement coefficient (0.224) as the effect
-t_trade$eu_effect = t_trade$eu_effect * partials[1]
+t_trade$eu_effect = t_trade$new_eu_pair * partials[1]
 
 # Data to be finally fed to the function (we base the counterfactual on the year 2000.)
-data <- t_trade[t_trade$year == 2000,]   # In example, 1892 Entries, 5676 removed
+ge_baseline_data <- t_trade[t_trade$year == 2000,]   # In example, 1892 Entries, 5676 removed
 
 # head(data) # First 10 rows
-data[sample(1:nrow(data), 10),]  # 10 random rows
+ge_baseline_data[sample(1:nrow(data), 10),]  # 10 random rows
 ```
 
 Now that we have the data we need, we can run the ge_gravity function as follows:
 
 ```{r}
 ge_results <- ge_gravity(
-  exp_id = data$expcode,    # Origin country associated with each observation
-  imp_id = data$impcode,    # Destination country associated with each observation
-  flows  = data$trade,      # Observed trade flows in the data for the year being used as the baseline
-  beta   = data$eu_effect,  # “Partial” change in trade, obtained as coefficient from gravity estimation
+  exp_id = ge_baseline_data$expcode,    # Origin country associated with each observation
+  imp_id = ge_baseline_data$impcode,    # Destination country associated with each observation
+  flows  = ge_baseline_data$trade,      # Observed trade flows in the data for the year being used as the baseline
+  beta   = ge_baseline_data$eu_effect,  # “Partial” change in trade, obtained as coefficient from gravity estimation
   theta  = 4,               # Trade elasticity
   mult   = FALSE,           # Assume trade balance is an additive component of national expenditure
-  data   = data
+  data   = ge_baseline_data
 )
-ge_results[sample(1:nrow(ge_results), 10),c(1:2,6,11:15)]
+ge_results[sample(1:nrow(ge_results), 10),c(1:2,6,13:17)] # 10 random rows
 ```
 
 
