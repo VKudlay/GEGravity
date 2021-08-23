@@ -929,7 +929,7 @@ Mayer (2014)
 
 [Mayer, T., Vicard, V., & Zignago, S. (2018), “The cost of non-Europe, revisited”.](http://www.cepii.fr/PDF_PUB/wp/2018/wp2018-06.pdf)
 
-[Timmer, M.P., Dietzenbacher, E., Los, B., Stehrer, R. and De Vries, G.J., 2015. An illustrated user guide to the world input–output database: the case of global automotive production. Review of International Economics, 23(3), pp.575-605.](https://onlinelibrary.wiley.com/doi/full/10.1111/roie.12178?casa_token=_JZInGh_hO8AAAAA%3A71VfkDsx8FK4h8FH30U9iPH6FnXDmem0FrzmuSVnAfOaZ6RpqcVfiml_apbzCpOJTgpjxcO2Cw-2WLo)
+[Timmer, M.P., Dietzenbacher, E., Los, B., Stehrer, R. and De Vries, G.J. (2015), "An illustrated user guide to the world input–output database: the case of global automotive production". Review of International Economics, 23(3), pp.575-605.](https://onlinelibrary.wiley.com/doi/full/10.1111/roie.12178?casa_token=_JZInGh_hO8AAAAA%3A71VfkDsx8FK4h8FH30U9iPH6FnXDmem0FrzmuSVnAfOaZ6RpqcVfiml_apbzCpOJTgpjxcO2Cw-2WLo)
 
 [Yotov, Y. V., Piermartini, R., Monteiro, J.-A., & Larch, M. (2016), An Advanced Guide to Trade Policy Analysis:
 The Structural Gravity Model, World Trade Organization, Geneva.](https://www.wto.org/english/res_e/booksp_e/advancedwtounctad2016_e.pdf)
