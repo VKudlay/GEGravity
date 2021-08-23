@@ -206,10 +206,11 @@ In addition to estimating the effects of EU enlargements on new EU pairs, this e
 
 ***
 
-Before proceeding, some further pre-processing is needed. Specifically, the function needs to get a series
-of importer/exporter pairs with their appropriate impacts of joining the EU,
-which is either the the eu_enlargement partial computed above or 0 (because they didn't join).
-To obtain the general equilibrium effects of these new additions to the EU (as of 2000)
+Before proceeding, some further pre-processing is needed. Specifically, we need to supply 
+the function with the partial effects of joining the EU estimated above for each
+of the appropriate pairs. To do this, we create a new variable whose value is either
+the eu_enlargement partial computed above or 0. We will use the year 2000 as the baseline for 
+the general equilibrium counterfactual, so we assign these partial effects in the year 2000. 
 
 ```{r}
 # Sort matrix to make it easier to find imp/exp pairs
