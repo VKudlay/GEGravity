@@ -141,7 +141,7 @@ printHead(X)
 ```
 
 Then, set ${\texttt B} \ (= e^{\beta})$ to be the matrix of partial effects.
-Notice that the diagonal must be set to 0.
+Notice that the diagonal must be set to 1 (i.e., $\beta=0$).
 
 ```{r}
 B <- beta
