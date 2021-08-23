@@ -38,7 +38,7 @@ Suppose the researcher wishes to use this data set to quantify general equilibri
 
 $$X_{ijt} = \exp\bigg[\ln(\alpha_{it}) + \ln(\alpha_{jt}) + \ln(\alpha_{ij}) + \beta \cdot FTA_{ijt}\bigg] + e_{ijt}$$
 
-The Stata equivalent of this package uses the ppmlhdfe command created by Correia, Guimarães, & Zylkin (2019) to achieve this. In our example, we will use the [alpaca library](https://cran.r-project.org/web/packages/alpaca/index.html) by Amrei Stammann and Daniel Czarnowske ORCID to do the same via the \code{feglm} (Fixed-Effect Generalized Linear Model) function.
+The Stata equivalent of this package uses the ppmlhdfe command created by Correia, Guimarães, & Zylkin (2019) to achieve this. In our example, we will use the [alpaca library](https://cran.r-project.org/web/packages/alpaca/index.html) by Amrei Stammann to do the same via the \code{feglm} (Fixed-Effect Generalized Linear Model) function.
 
 ```{r}
 library(alpaca)  # Needed for partial coefficients
