@@ -97,7 +97,7 @@ As an assumption:
 To be safe and explanatory, we will also define a few functions:
 - Typesafe function \code{ts} that can verify that our initial dimensions hold and that no $\texttt{NA}$ values are introduced.
 - Sanity function \code{sanity} that will make sure that a vector/matrix does not change cardinality illogically.
-- \code{printHead} just to be lazy and show only a tiny subset of data without much code.
+- \code{printHead} to show only a tiny subset of data without much code.
 
 ```{r}
 printHead <- function(Vec, rows = 6, cols = 6) {
