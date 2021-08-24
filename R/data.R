@@ -5,7 +5,7 @@
 #' using years 2000, 2005, 2010, and 2014.
 #'
 #' Trade and domestic sales data has been aggregated from the WIOD database (see sources).
-#' For its use, consider "An Illustrated User Guide to the World Input-Output Database.
+#' For its use, consider "An Illustrated User Guide to the World Input-Output Database."
 #'
 #' Information on Free Trade Agreements (FTAs) is taken from the NSF-Kellogg database
 #' maintained by Scott Baier and Jeff Bergstrand (see sources).
