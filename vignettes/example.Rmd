@@ -27,7 +27,7 @@ if (!requireNamespace("boot", quietly = TRUE)) {
 }
 ```
 
-This example RMD uses the example data \code{TradeData0014}. The data set consists of a panel of 44 countries trading with one another over the years 2000-2014. The trade data uses aggregated trade flows based on [WIOD](http://www.wiod.org/database/wiots16) and information on FTAs is from the [NSF-Kellogg database](https://sites.nd.edu/jeffrey-bergstrand/database-on-economic-integration-agreements/) maintained by Scott Baier and Jeff Bergstrand. To find out more about the trade data, see ["Timmer, Dietzenbacher, Los, Stehrer, and de Vries (2015)](https://www.researchgate.net/publication/274731196_An_Illustrated_User_Guide_to_the_World_Input-Output_Database_The_Case_of_Global_Automotive_Production).
+This example RMD uses the example data `TradeData0014`. The data set consists of a panel of 44 countries trading with one another over the years 2000-2014. The trade data uses aggregated trade flows based on [WIOD](http://www.wiod.org/database/wiots16) and information on FTAs is from the [NSF-Kellogg database](https://sites.nd.edu/jeffrey-bergstrand/database-on-economic-integration-agreements/) maintained by Scott Baier and Jeff Bergstrand. To find out more about the trade data, see ["Timmer, Dietzenbacher, Los, Stehrer, and de Vries (2015)](https://www.researchgate.net/publication/274731196_An_Illustrated_User_Guide_to_the_World_Input-Output_Database_The_Case_of_Global_Automotive_Production).
 
 
 ```{r}
