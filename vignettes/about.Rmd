@@ -244,7 +244,6 @@ The data we will feed to the ge_gravity command looks like this:
 
 
 ```{r}
-
 # Data to be finally fed to the function (we base the counterfactual on the year 2000.)
 ge_baseline_data <- t_trade[t_trade$year == 2000,]   # In example, 1892 Entries, 5676 removed
 
