@@ -111,7 +111,7 @@ w_mult = ge_gravity(
   exp_id = data$expcode,     # Origin country associated with each observation
   imp_id = data$impcode,     # Destination country associated with each observation
   flows  = data$trade,       # Observed trade flows for the baseline year
-  beta   = data$eu_effect,   # “Partial” trade change; coefficient from gravity estimation
+  beta   = data$eu_effect,   # â€œPartialâ€ trade change; coefficient from gravity estimation
   theta  = 4,                # Trade elasticity
   mult   = TRUE,             # Assume national expenditure is fixed multiple of nat. output
   data   = data
@@ -121,7 +121,7 @@ w_o_mult = ge_gravity(
   data$expcode,              # Origin country associated with each observation
   data$impcode,              # Destination country associated with each observation
   data$trade,                # Observed trade flows for the baseline year
-  data$eu_effect,            # “Partial” change in trade; coefficient from gravity estimation
+  data$eu_effect,            # â€œPartialâ€ change in trade; coefficient from gravity estimation
   4,                         # Trade elasticity
   FALSE,                     # Assume trade balance is additive component of nat. expenditure
   data
