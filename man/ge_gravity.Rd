@@ -15,7 +15,7 @@ This is arbitrary and for organization purposes only, i.e. AUS, Australia}
 
 \item{flows}{Observed trade flows in the data for the year being used as the baseline for the counterfactual.}
 
-\item{beta}{An input reflecting the “partial” change in trade, typically obtained as a coefficient from a
+\item{beta}{An input reflecting the "partial" change in trade, typically obtained as a coefficient from a
 prior gravity estimation.}
 
 \item{theta}{Overall trade elasticity}
@@ -40,7 +40,7 @@ A dataframe element containing resulting estimations of impacts.
     \item \code{welfare}:     The exporter's change in welfare (new/old level of welfare)
     \item \code{real_wage}:   The exporter's change in real wage (new/old real wage). \cr
        Note: this is generally different from the change in welfare
-       unless either trade is balanced or the “multiplicative” option is chosen.
+       unless either trade is balanced or the "multiplicative" option is chosen.
     \item \code{nom_wage}:    The exporter's change in nominal wage (new/old nom wage).
     \item \code{price_index}: The exporter's change in price index (new/old price index)
    }
@@ -111,7 +111,7 @@ w_mult = ge_gravity(
   exp_id = data$expcode,     # Origin country associated with each observation
   imp_id = data$impcode,     # Destination country associated with each observation
   flows  = data$trade,       # Observed trade flows for the baseline year
-  beta   = data$eu_effect,   # â€œPartialâ€ trade change; coefficient from gravity estimation
+  beta   = data$eu_effect,   # "Partial" trade change; coefficient from gravity estimation
   theta  = 4,                # Trade elasticity
   mult   = TRUE,             # Assume national expenditure is fixed multiple of nat. output
   data   = data
@@ -121,7 +121,7 @@ w_o_mult = ge_gravity(
   data$expcode,              # Origin country associated with each observation
   data$impcode,              # Destination country associated with each observation
   data$trade,                # Observed trade flows for the baseline year
-  data$eu_effect,            # â€œPartialâ€ change in trade; coefficient from gravity estimation
+  data$eu_effect,            # "Partial" change in trade; coefficient from gravity estimation
   4,                         # Trade elasticity
   FALSE,                     # Assume trade balance is additive component of nat. expenditure
   data
