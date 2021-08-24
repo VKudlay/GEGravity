@@ -21,8 +21,8 @@ if (!requireNamespace("alpaca", quietly = TRUE)) {
   stop("Package \"alpaca\" needed for about.Rmd and example.Rmd to work. Please install it.",
     call. = FALSE)
 }
-if (!requireNamespace("boot", quietly = TRUE)) {
-  stop("Package \"boot\" needed for about.Rmd and example.Rmd to work. Please install it.",
+if (!requireNamespace("data.table", quietly = TRUE)) {
+  stop("Package \"data.table\" needed for about.Rmd and example.Rmd to work. Please install it.",
     call. = FALSE)
 }
 ```
@@ -169,7 +169,8 @@ For an example, the package comes with example data `TradeData0014`. The data se
 
 
 ```{r}
-head(TradeData0014)
+data(TradeData0014) # loads data included with package
+head(TradeData0014) 
 ```
 
 Suppose the researcher wishes to use this data set to quantify general equilibrium trade and welfare effects of the EU enlargements that took place between 2000-2014. To first obtain the partial effects of these enlargements on trade flows, a PPML (Poisson pseudo-maximum likelihood) gravity specification may be used. Specifically, to obtain the "partial" estimates of the effects of EU enlargements on trade, we can use the following three-way gravity specification:
