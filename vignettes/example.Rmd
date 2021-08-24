@@ -21,16 +21,17 @@ if (!requireNamespace("alpaca", quietly = TRUE)) {
   stop("Package \"alpaca\" needed for about.Rmd and example.Rmd to work. Please install it.",
     call. = FALSE)
 }
-if (!requireNamespace("boot", quietly = TRUE)) {
-  stop("Package \"boot\" needed for about.Rmd and example.Rmd to work. Please install it.",
+if (!requireNamespace("data.table", quietly = TRUE)) {
+  stop("Package \"data.table\" needed for about.Rmd and example.Rmd to work. Please install it.",
     call. = FALSE)
 }
 ```
 
-This example RMD uses the example data `TradeData0014`, which included with this package. The data set consists of a panel of 44 countries trading with one another over the years 2000-2014. The trade data uses aggregated trade flows based on [WIOD](http://www.wiod.org/database/wiots16) and information on FTAs is from the [NSF-Kellogg database](https://sites.nd.edu/jeffrey-bergstrand/database-on-economic-integration-agreements/) maintained by Scott Baier and Jeff Bergstrand. To find out more about the trade data, see ["Timmer, Dietzenbacher, Los, Stehrer, and de Vries (2015)](https://www.researchgate.net/publication/274731196_An_Illustrated_User_Guide_to_the_World_Input-Output_Database_The_Case_of_Global_Automotive_Production).
+This example RMD uses the example data `TradeData0014`, which is included with this package. The data set consists of a panel of 44 countries trading with one another over the years 2000-2014. The trade data uses aggregated trade flows based on [WIOD](http://www.wiod.org/database/wiots16) and information on FTAs is from the [NSF-Kellogg database](https://sites.nd.edu/jeffrey-bergstrand/database-on-economic-integration-agreements/) maintained by Scott Baier and Jeff Bergstrand. To find out more about the trade data, see ["Timmer, Dietzenbacher, Los, Stehrer, and de Vries (2015)](https://www.researchgate.net/publication/274731196_An_Illustrated_User_Guide_to_the_World_Input-Output_Database_The_Case_of_Global_Automotive_Production).
 
 
 ```{r}
+data(TradeData0014) # loads data included with package
 head(TradeData0014)
 ```
 
@@ -45,9 +46,6 @@ library(alpaca)  # Needed for partial coefficients
 
 # Generate foreign trade subset
 f_trade <- TradeData0014[TradeData0014$exporter != TradeData0014$importer,]
-
-# Normalize trade data to unit interval
-f_trade$trade <- f_trade$trade / max(f_trade$trade)
 
 # classify FEs for components to be absorbed (finding variable interactions)
 f_trade$exp_year <- interaction(f_trade$expcode, f_trade$year)
@@ -77,8 +75,8 @@ the general equilibrium counterfactual, so we assign these partial effects in th
 For Stata users, the Stata equivalent of this next step is:
 ```
 sort exporter importer year
-\code{by exporter importer: gen new_eu_pair = (eu_enlargement[_N]-eu_enlargement[1])}                   
-\code{by exporter importer: gen eu_effect = _b[eu_enlargement] * new_eu_pair
+by exporter importer: gen new_eu_pair = (eu_enlargement[_N]-eu_enlargement[1])                   
+by exporter importer: gen eu_effect = _b[eu_enlargement] * new_eu_pair
 ```
 
 In R, we do the following:
@@ -103,10 +101,18 @@ invisible(by(t_trade, list(t_trade$expcode, t_trade$impcode), function(row) {
 # If added to EU, give it the computed partial eu_enlargement coefficient (0.224) as the effect
 t_trade$eu_effect = t_trade$new_eu_pair * partials[1]
 
+```
+
+To finalize the data for the counterfactual, we will use the year 2000 as the baseline year.
+The data we will feed to the ge_gravity command looks like this:
+
+
+```{r}
 # Data to be finally fed to the function (we base the counterfactual on the year 2000.)
 ge_baseline_data <- t_trade[t_trade$year == 2000,]   # In example, 1892 Entries, 5676 removed
 
-ge_baseline_data[sample(1:nrow(data), 10),]  # 10 random rows
+# head(data) # First 10 rows
+ge_baseline_data[sample(1:nrow(ge_baseline_data), 10),]  # 10 random rows
 ```
 
 Now that we have the data we need, we can run the ge_gravity function as follows:
@@ -121,13 +127,13 @@ ge_results <- ge_gravity(
   mult   = FALSE,           # Assume trade balance is an additive component of national expenditure
   data   = ge_baseline_data
 )
-ge_results[sample(1:nrow(ge_results), 10),c(1:2,6,13:17)] # 10 random rows
+ge_results[sample(1:nrow(ge_results), 10),c(1:2,5:6,12:16)] # 10 random rows
 ```
 
 
-This assumes a standard trade elasticity value of $\theta = 4$. The input for \code{beta} is given by a variable called \code{eu_effect}, which in this case is equal to 0.224 for new EU pairs formed during the period and equal to 0 otherwise. Because of the small size of the sample, it solves almost instantly. Sample results for the first 10 rows in the data are shown above for the changes in welfare, real wages, nomimal wages, and the local price index. Click on the right arrow to scroll to the right if they are not all displayed above. In all cases, the number shown is the result computed for the *exporting* country. Unsurprisingly, the new EU members (Bulgaria, Croatia, Czech Republic, Estonia, Hungary, Latvia, Lithuania, Malta, Poland, Romania, Slovakia, and Slovenia) realize the largest welfare gains from their joining the EU, with existing EU countries also gaining. All countries not included in the agreement experience small losses due to trade diversion, with the largest losses accruing to Russia. 
+This assumes a standard trade elasticity value of $\theta = 4$. The input for $\beta$ is given by the variable we created called `eu_effect`, which is equal to 0.224 for new EU pairs formed during the period and equal to 0 otherwise. Because of the small size of the sample, it solves almost instantly. Sample results for the first 10 rows in the data are shown above for the counterfactual trade level and the associated changes in welfare, real wages, nomimal wages, and the local price index. Click on the right arrow to scroll to the right if they are not all displayed above. For the latter four variables, the number shown is the result computed for the *exporting* country. Unsurprisingly, the new EU members (Bulgaria, Croatia, Czech Republic, Estonia, Hungary, Latvia, Lithuania, Malta, Poland, Romania, Slovakia, and Slovenia) realize the largest welfare gains from their joining the EU, with existing EU countries also gaining. All countries not included in the agreement experience small losses due to trade diversion, with the largest losses accruing to Russia. 
 
-We can also change how trade imbalances enter the model. The default (exibited above with mult = FALSE) is to assume that they enter expenditure additively (i.e., $E_j = Y_j + D_j$), but one can also change the model so that expenditure is instead a fixed multiple of income (i.e., let $E_j = \delta_j Y_j$.) by setting \code{mult = TRUE}. While using multiplicative imbalances instead of additive balances changes the results slightly, they are still qualitatively very similar.
+We can also change how trade imbalances enter the model. The default (exibited above with mult = FALSE) is to assume that they enter expenditure additively (i.e., $E_j = Y_j + D_j$), but one can also change the model so that expenditure is instead a fixed multiple of income (i.e., let $E_j = \delta_j Y_j$.) by setting `mult = TRUE`. While using multiplicative imbalances instead of additive balances changes the results slightly, they are still qualitatively very similar.
 
 An important point about the above exercises is that the initial partial effect is estimated with some uncertainty. The GE results that were calculated may paint a misleading picture because they do not take this uncertainty into account. For this reason, it is considered good practice to use a bootstrap method to construct confidence intervals for the GE calculations. This type of procedure can be made easier using `ge_gravity` function: 
 
@@ -222,14 +228,14 @@ apply(save_partials, 2, function(x) quantile(x, probs = .025))
 ```
 
 ```{r}
-# Get CIs for GE effects
-temp <- bootstrap_GE_results[,12:52]
+# Get 95% CIs for GE effects
+temp <- bootstrap_GE_results[,12:51]
 temp <- temp[,order(colnames(temp))]
 
-bootstrap_GE_results[,"lb_welf"] <- apply(temp[,22:41], 1, function(x) quantile(x, probs = .025))
-bootstrap_GE_results[,"ub_welf"] <- apply(temp[,22:41], 1, function(x) quantile(x, probs = .975))
-bootstrap_GE_results[,"lb_trade"] <- apply(temp[,1:21], 1, function(x) quantile(x, probs = .025))
-bootstrap_GE_results[,"ub_trade"] <- apply(temp[,1:21], 1, function(x) quantile(x, probs = .975))
+bootstrap_GE_results[,"lb_welf"] <- apply(temp[,21:40], 1, function(x) quantile(x, probs = .025))
+bootstrap_GE_results[,"ub_welf"] <- apply(temp[,21:40], 1, function(x) quantile(x, probs = .975))
+bootstrap_GE_results[,"lb_trade"] <- apply(temp[,1:20], 1, function(x) quantile(x, probs = .025))
+bootstrap_GE_results[,"ub_trade"] <- apply(temp[,1:20], 1, function(x) quantile(x, probs = .975))
 
 disp_cols <- c("exporter","importer","year","trade","lb_welf","ub_welf","lb_trade","ub_trade")
 bootstrap_GE_results[sample(1:nrow(ge_results), 10),disp_cols] # 10 random rows; GE welfare effects are for *exporter*
