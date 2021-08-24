@@ -260,7 +260,7 @@ ge_results <- ge_gravity(
   mult   = FALSE,           # Assume trade balance is an additive component of national expenditure
   data   = ge_baseline_data
 )
-ge_results[sample(1:nrow(ge_results), 10),c(1:2,6,13:17)] # 10 random rows
+ge_results[sample(1:nrow(ge_results), 10),c(1:2,5:6,12:16)] # 10 random rows
 ```
 
 
