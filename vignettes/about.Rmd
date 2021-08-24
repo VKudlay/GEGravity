@@ -245,7 +245,7 @@ t_trade$eu_effect = t_trade$new_eu_pair * partials[1]
 ge_baseline_data <- t_trade[t_trade$year == 2000,]   # In example, 1892 Entries, 5676 removed
 
 # head(data) # First 10 rows
-ge_baseline_data[sample(1:nrow(data), 10),]  # 10 random rows
+ge_baseline_data[sample(1:nrow(ge_baseline_data), 10),]  # 10 random rows
 ```
 
 Now that we have the data we need, we can run the ge_gravity function as follows:
