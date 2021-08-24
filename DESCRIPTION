@@ -1,6 +1,6 @@
 Package: GEGravity
 Type: Package
-Title: General Equilibrium Effect Estimator
+Title: Solver for Armington-CES general equilibrium trade model
 Version: 1.0.0
 Authors@R: c(
   person("Tom",   "Zylkin", email = "tzylkin@richmond.edu",      role = c("aut", "cre")),
