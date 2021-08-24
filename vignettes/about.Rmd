@@ -184,9 +184,6 @@ library(alpaca)  # Needed for partial coefficients
 # Generate foreign trade subset
 f_trade <- TradeData0014[TradeData0014$exporter != TradeData0014$importer,]
 
-# Normalize trade data to unit interval
-f_trade$trade <- f_trade$trade / max(f_trade$trade)
-
 # classify FEs for components to be absorbed (finding variable interactions)
 f_trade$exp_year <- interaction(f_trade$expcode, f_trade$year)
 f_trade$imp_year <- interaction(f_trade$impcode, f_trade$year)
@@ -214,8 +211,8 @@ the eu_enlargement partial computed above or 0.
 For Stata users, the Stata equivalent of this next step is:
 ```
 sort exporter importer year
-\code{by exporter importer: gen new_eu_pair = (eu_enlargement[_N]-eu_enlargement[1])}                   
-\code{by exporter importer: gen eu_effect = _b[eu_enlargement] * new_eu_pair
+by exporter importer: gen new_eu_pair = (eu_enlargement[_N]-eu_enlargement[1])                   
+by exporter importer: gen eu_effect = _b[eu_enlargement] * new_eu_pair
 ```
 
 In R, we do the following:
@@ -239,11 +236,15 @@ invisible(by(t_trade, list(t_trade$expcode, t_trade$impcode), function(row) {
 
 # If added to EU, give it the computed partial eu_enlargement coefficient (0.224) as the effect
 t_trade$eu_effect = t_trade$new_eu_pair * partials[1]
+
 ```
 
 To finalize the data for the counterfactual, we will use the year 2000 as the baseline year.
 The data we will feed to the ge_gravity command looks like this:
+
+
 ```{r}
+
 # Data to be finally fed to the function (we base the counterfactual on the year 2000.)
 ge_baseline_data <- t_trade[t_trade$year == 2000,]   # In example, 1892 Entries, 5676 removed
 
@@ -267,7 +268,7 @@ ge_results[sample(1:nrow(ge_results), 10),c(1:2,5:6,12:16)] # 10 random rows
 ```
 
 
-This assumes a standard trade elasticity value of $\theta = 4$. The input for \code{beta} is given by a variable called \code{eu_effect}, which in this case is equal to 0.224 for new EU pairs formed during the period and equal to 0 otherwise. Because of the small size of the sample, it solves almost instantly. Sample results for the first 10 rows in the data are shown above for the changes in welfare, real wages, nomimal wages, and the local price index. Click on the right arrow to scroll to the right if they are not all displayed above. In all cases, the number shown is the result computed for the *exporting* country. Unsurprisingly, the new EU members (Bulgaria, Croatia, Czech Republic, Estonia, Hungary, Latvia, Lithuania, Malta, Poland, Romania, Slovakia, and Slovenia) realize the largest welfare gains from their joining the EU, with existing EU countries also gaining. All countries not included in the agreement experience small losses due to trade diversion, with the largest losses accruing to Russia. 
+This assumes a standard trade elasticity value of $\theta = 4$. The input for $\beta$ is given by the variable we created called `eu_effect`, which is equal to 0.224 for new EU pairs formed during the period and equal to 0 otherwise. Because of the small size of the sample, it solves almost instantly. Sample results for the first 10 rows in the data are shown above for the counterfactual trade level and the associated changes in welfare, real wages, nomimal wages, and the local price index. Click on the right arrow to scroll to the right if they are not all displayed above. For the latter four variables, the number shown is the result computed for the *exporting* country. Unsurprisingly, the new EU members (Bulgaria, Croatia, Czech Republic, Estonia, Hungary, Latvia, Lithuania, Malta, Poland, Romania, Slovakia, and Slovenia) realize the largest welfare gains from their joining the EU, with existing EU countries also gaining. All countries not included in the agreement experience small losses due to trade diversion, with the largest losses accruing to Russia. 
 
 We can also change how trade imbalances enter the model. The default (exibited above with mult = FALSE) is to assume that they enter expenditure additively (i.e., $E_j = Y_j + D_j$), but one can also change the model so that expenditure is instead a fixed multiple of income (i.e., let $E_j = \delta_j Y_j$.) by setting `mult = TRUE`. While using multiplicative imbalances instead of additive balances changes the results slightly, they are still qualitatively very similar.
 
@@ -312,9 +313,6 @@ for (b in 1:bootreps) {
     
     # Generate foreign trade subset
     f_trade <- boot_data[boot_data$exporter != boot_data$importer,]
-
-    # Normalize trade data to unit interval
-    f_trade$trade <- f_trade$trade / max(f_trade$trade)
 
     # classify FEs to be absorbed
     f_trade$exp_year <- interaction(f_trade$expcode, f_trade$year)
@@ -397,10 +395,10 @@ Note again that the displayed bounds on welfare estimates refer to welfare chang
 Instead of calling the function, let's assume that we have the variables set as following:
 
 ```{r}
-exp_id <- data$expcode
-imp_id <- data$impcode
-flows  <- data$trade
-beta   <- data$eu_effect
+exp_id <- ge_baseline_data$expcode
+imp_id <- ge_baseline_data$impcode
+flows  <- ge_baseline_data$trade
+beta   <- ge_baseline_data$eu_effect
 theta  <- 4
 mult   <- FALSE
 ```
@@ -670,7 +668,7 @@ And then, we can just return them:
 
 ```{r}
 # Build and return the final list
-data_out <- data
+data_out <- ge_baseline_data
 
 data_out$new_trade   <- X_new
 data_out$welfare     <- welfare
@@ -678,7 +676,7 @@ data_out$real_wage   <- real_wage
 data_out$nom_wage    <- nom_wage
 data_out$price_index <- price_index
 
-head(data_out)
+head(data_out[,c(1:2,5:6,12:16)])
 ```
 
 
