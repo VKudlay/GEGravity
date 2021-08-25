@@ -4,6 +4,13 @@ GEGravity is an R packge that replicates the functionality of the ge_gravity Sta
 
 For more details on the options and functionalities included with this command, a more in-depth discussion can be found in the R documentation file and vignettes found in this repository. For Stata users, the `Stata` folder contains an example .do file and help file along with the current version of the ge_gravity Stata package. 
 
+# Uses
+
+The Armington-CES and Eaton-Kortum trade models are widely used frameworks in international economics for quantifying the effects of trade polices. Having a standard package for solving these models promotes replicability and saves researchers from having to write their own algorithms or adapt unpackaged code.
+
+For students, the ge_gravity command can be used as a simple tool for demonstrating how general equilibrium effects matter for trade policy analysis. More technically inclined students can use the included vignettes to demystify how GE trade models work and to learn some basic techniques for solving them numerically.
+  
+
 # GEGravity implementation in R
 
 ## Dependencies
