@@ -30,7 +30,7 @@ We are currently in the process of submitting the package to CRAN. In the meanti
 
 Alternatively, either download the `GEGravity/` folder or clone the repository and navigate to it, then open `GEGravity.Rprog` in RStudio.
 
-To see example of execution, theory, etc, open the .Rmd files in the `Vignettes/` subfolder from within RStudio. To load in package data, run `data(...)`, i.e. `data(TradeData0014)`. The .Rmd files can either be run interactively from within R or they can be knit into easily readable html files using the knitr package.
+To see worked examples and a tour of the code's inner workings, open the .Rmd files found in the `Vignettes/` subfolder from within RStudio. The .Rmd files can either be run interactively from within R or they can be knit into easily readable html files using the knitr package.  To load in package data, run `data(...)`, i.e. `data(TradeData0014)`. 
 
 ## Funding
 Funding for this R package was provided by the Department for Digital, Culture, Media and Sport, United Kingdom.
