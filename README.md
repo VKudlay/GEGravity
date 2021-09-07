@@ -22,11 +22,13 @@ Suggested:
 - alpaca (>= 0.3.1)   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (to compute fixed effect GLM)  
 - rmarkdown (>= 2.1)  &nbsp; (to view the vignettes)  
 - data.table (>= 1.14)       &nbsp;&nbsp; (to facilitate bootstrapping)  
-- devtools (>=1.13.6)  &nbsp;&nbsp;&nbsp;(to install from github)  
+- devtools (>= 1.13.6) &nbsp;&nbsp;&nbsp;(to install from github)  
 - knitr                &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;(to knit the vignettes)  
 
 ## How To Use
-We are currently in the process of submitting the package to CRAN. In the meantime, one can use the package in a streamlined manner by installing from github. Use `devtools::install_github("VKudlay/GEGravity")`.
+As of now, the package has been submitted to the CRAN. Once it has been accepted, you may install and load the package like usual (i.e. `install.packages("GEGravity")` to install and `library("GEGravity")` to load).
+
+Otherwise, one can use the package in a streamlined manner by installing from github. Use `devtools::install_github("VKudlay/GEGravity")`.
 
 Alternatively, either download the `GEGravity/` folder or clone the repository and navigate to it, then open `GEGravity.Rprog` in RStudio.
 
