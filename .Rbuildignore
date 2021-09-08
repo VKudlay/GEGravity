@@ -3,3 +3,4 @@
 ^.*\.pdf$
 ^Stata$
 ^cran-comments.md$
+^CRAN-RELEASE$
