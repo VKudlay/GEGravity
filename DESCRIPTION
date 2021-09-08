@@ -3,7 +3,7 @@ Type: Package
 Title: Solver for Armington-CES general equilibrium trade model
 Version: 1.0.0
 Authors@R: c(
-  person("Tom",   "Zylkin", email = "tzylkin@richmond.edu",   role = c("aut", "cre")),
+  person("Tom",   "Zylkin", email = "tzylkin@richmond.edu", role = c("aut", "cre")),
   person("Vadim", "Kudlay", email = "vadim_kudlay@brown.edu", role = c("aut")))
 Description: 
   This package solves for general equilibrium effects of changes in trade policies using 
