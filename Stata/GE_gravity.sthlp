@@ -27,8 +27,8 @@
 {title:Syntax}
 
 {p 8 15 2}{cmd:ge_gravity}
-{depvar} [{indepvars}] 
-{ifin}{cmd:,} {opt ex:porter(exp_id)} {opt im:porter(imp_id)} {opt y:ear(time_id)} [{help ge_gravity##options:options}] {p_end}
+{it: exp_id} {it: imp_id} {it: flows} {it: beta}
+{ifin}{cmd:,} {opt theta(#)} {opt gen_w(varname)} {opt gen_X(varname)} [{help ge_gravity##options:options}] {p_end}
 
 {p 8 8 2}{it: exp_id} and {it: imp_id} are variables that respectively identify 
 the origin and destination country associated with each observation. {it: flows} are
