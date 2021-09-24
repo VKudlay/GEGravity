@@ -123,7 +123,7 @@ if "`a_hat'" != "" {
 	}
 }		
 else {
-	tempvar `a_hat'
+	tempvar a_hat
 	gen `a_hat' = 1
 }
 
