@@ -14,7 +14,7 @@ version 11.2
 * v1.2: now you can examine welfare effects of changes in technology levels a la Eaton-Kortum 2002
 
 syntax anything [if] [in] ///
-,theta(real) gen_w(name) gen_X(name) [gen_rw(name) MULTiplicative gen_nw(name) gen_P(name) A_hat(varname)]
+,theta(real) gen_w(name) gen_X(name) [gen_rw(name) MULTiplicative gen_nw(name) gen_P(name) a_hat(varname)]
 
 * Ex: "GE_gravity exporter importer X beta, theta(-4) gen_w(welf) gen_X(new_pi)" will generate GE 
 * welfare effects "gen_w" and new trade values "gen_X" for a set of countries
@@ -105,17 +105,17 @@ cap gen `gen_P' = .
 di "sorting..."
 
 hashsort `exp_id' `imp_id'
-if "`A_hat'" != "" {
+if "`a_hat'" != "" {
 	tempvar temp1 temp2 temp3 temp4
-	by `exp_id': gegen `temp1' = min(`A_hat') if `touse'
-	by `exp_id': gegen `temp2' = max(`A_hat') if `touse'
+	by `exp_id': gegen `temp1' = min(`a_hat') if `touse'
+	by `exp_id': gegen `temp2' = max(`a_hat') if `touse'
 	gen `temp3' = abs(`temp1'-`temp2') if `touse'
 	qui sum `temp3'
 	if r(mean) != 0 {
 		di in red "Error: the variable provided for the change in the exporter's tehnology level must be the same for all observations associated with a given exporter"
 		exit 111
 	}
-	gen `temp4' = missing(`A_hat')
+	gen `temp4' = missing(`a_hat')
 	sum `temp4' if `touse'
 	if r(mean)>0 {
 		di in red "Error: A_hat has missing values"
@@ -123,14 +123,14 @@ if "`A_hat'" != "" {
 	}
 }		
 else {
-	tempvar A_hat
-	gen A_hat = 1
+	tempvar a_hat
+	gen a_hat = 1
 }
 
 
 di "solving..."
 
-mata: ge_solver("`X'", "`beta'", "`A_hat'", "`elasticity'", "`multiplicative'", "`gen_w'", "`gen_X'", "`gen_rw'", "`gen_nw'", "`gen_P'", "`touse'")
+mata: ge_solver("`X'", "`beta'", "`a_hat'", "`elasticity'", "`multiplicative'", "`gen_w'", "`gen_X'", "`gen_rw'", "`gen_nw'", "`gen_P'", "`touse'")
 
 di "solved!"
 end
@@ -218,7 +218,7 @@ void ge_solver(string scalar trade, string scalar partials, string scalar T_hat,
   B = colshape(exp(beta), N) 
   
   /* A_hat is the change in the technology level of a country raised to the theta */
-  A_hat = colshape(exp(beta), N)[.,1]
+  A_hat = colshape(A_hat, N)[.,1]
   
   /* flash warning if betas on the diagonal are not zero. */
   if (min(diagonal(B):== 1) != 1) {
