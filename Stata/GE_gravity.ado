@@ -104,7 +104,7 @@ cap gen `gen_P' = .
 
 di "sorting..."
 
-hashsort `exp_id' `imp_id'
+qui hashsort `exp_id' `imp_id'
 if "`a_hat'" != "" {
 	tempvar temp1 temp2 temp3 temp4
 	by `exp_id': gegen `temp1' = min(`a_hat') if `touse'
