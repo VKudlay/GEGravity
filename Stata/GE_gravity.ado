@@ -109,14 +109,14 @@ if "`a_hat'" != "" {
 	tempvar temp1 temp2 temp3 temp4
 	by `exp_id': gegen `temp1' = min(`a_hat') if `touse'
 	by `exp_id': gegen `temp2' = max(`a_hat') if `touse'
-	gen `temp3' = abs(`temp1'-`temp2') if `touse'
+	qui gen `temp3' = abs(`temp1'-`temp2') if `touse'
 	qui sum `temp3'
 	if r(mean) != 0 {
 		di in red "Error: the variable provided for the change in the exporter's tehnology level must be the same for all observations associated with a given exporter"
 		exit 111
 	}
-	gen `temp4' = missing(`a_hat')
-	sum `temp4' if `touse'
+	qui gen `temp4' = missing(`a_hat')
+	qui sum `temp4' if `touse'
 	if r(mean)>0 {
 		di in red "Error: A_hat has missing values"
 		exit 111
