@@ -177,7 +177,7 @@ Suppose the researcher wishes to use this data set to quantify general equilibri
 
 $$X_{ijt} = \exp\bigg[\ln(\alpha_{it}) + \ln(\alpha_{jt}) + \ln(\alpha_{ij}) + \beta \cdot FTA_{ijt}\bigg] + e_{ijt}$$
 
-The Stata equivalent of this package uses the ppmlhdfe command created by Correia, Guimarães, & Zylkin (2019) to achieve this. In our example, we will use the [alpaca library](https://cran.r-project.org/web/packages/alpaca/index.html) by Amrei Stammann to do the same via the `feglm` (Fixed-Effect Generalized Linear Model) function.
+The Stata equivalent of this package uses the ppmlhdfe command created by Correia, Guimarães, & Zylkin (2019) to achieve this. In our example, we will use the [alpaca library]( https://CRAN.R-project.org/package=alpaca) by Amrei Stammann to do the same via the `feglm` (Fixed-Effect Generalized Linear Model) function.
 
 ```{r}
 library(alpaca)  # Needed for partial coefficients
@@ -759,7 +759,7 @@ head(data)
 ## Difference between w_mult and w_o_mult is how trade balance is considered
 ## mult = TRUE assumes multiplicative trade balances; false assumes additive
 
-w_mult = ge_gravity(
+w_mult <- ge_gravity(
   exp_id = data$expcode,    # Origin country associated with each observation
   imp_id = data$impcode,    # Destination country associated with each observation
   flows  = data$trade,      # Observed trade flows in the data for the year being used as the baseline
@@ -769,7 +769,7 @@ w_mult = ge_gravity(
   data   = data
 )
 
-w_o_mult = ge_gravity(
+w_o_mult <-  ge_gravity(
   exp_id = data$expcode,    # Origin country associated with each observation
   imp_id = data$impcode,    # Destination country associated with each observation
   flows  = data$trade,      # Observed trade flows in the data for the year being used as the baseline

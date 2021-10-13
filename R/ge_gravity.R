@@ -106,7 +106,7 @@
 #' ## Difference between w_mult and w_o_mult is how trade balance is considered
 #' ## mult = TRUE assumes multiplicative trade balances; false assumes additive
 #'
-#' w_mult = ge_gravity(
+#' w_mult <- ge_gravity(
 #'   exp_id = data$expcode,     # Origin country associated with each observation
 #'   imp_id = data$impcode,     # Destination country associated with each observation
 #'   flows  = data$trade,       # Observed trade flows for the baseline year
@@ -116,7 +116,7 @@
 #'   data   = data
 #' )
 #'
-#' w_o_mult = ge_gravity(
+#' w_o_mult <- ge_gravity(
 #'   data$expcode,              # Origin country associated with each observation
 #'   data$impcode,              # Destination country associated with each observation
 #'   data$trade,                # Observed trade flows for the baseline year

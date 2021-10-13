@@ -1,6 +1,6 @@
 Package: GEGravity
 Type: Package
-Title: Solver for Armington-CES general equilibrium trade model
+Title: Solver for Armington-CES General Equilibrium Trade Model
 Version: 1.0.0
 Authors@R: c(
   person("Tom",   "Zylkin", email = "tzylkin@richmond.edu", role = c("aut", "cre")),
@@ -12,7 +12,7 @@ Description:
   simulations based on prior gravity estimates of FTAs or other similar variables. Note that this 
   package is directly associated with the ge_gravity Stata package and has been commissioned with 
   the appreciated support of the UK Department for Digital, Culture, Media & Sport. 
-License: GPL-3 + file LICENSE
+License: GPL-3
 Depends: 
   R (>= 2.10)
 Suggests: 

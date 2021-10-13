@@ -1,3 +1,10 @@
+## Resubmission
+This is a resubmission. In this version I have:
+
+* Converted the DESCRIPTION title to title case.
+* Removed LICENSE file and "+ file LICENSE" as requested by reviewer
+* Updated alpaca package address to canonical CRAN URL
+
 ## Test environments
 * macOS Big Sur 11.4, R 4.0.3
 * win-builder (devel and release)
