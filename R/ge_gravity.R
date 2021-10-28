@@ -194,6 +194,7 @@ ge_gravity <- function(
   # "B" (= e^beta) is the matrix of partial effects
   B <- beta
   dim(B)  <- c(N, N) # Format B to have N columns
+  B       <- t(B)    # So B has same indices as X
 
   if(any(diag(B) != 0)) {
     # Flash warning if betas on the diagonal are not zero.
