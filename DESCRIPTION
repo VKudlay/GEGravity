@@ -10,7 +10,7 @@ Description:
   a one sector Armington-CES trade model. It uses a simple fixed point algorithm that allows for 
   fast computation and is ideal for bootstrapping confidence intervals for general equilibrium 
   simulations based on prior gravity estimates of FTAs or other similar variables. Note that this 
-  package is directly associated with the ge_gravity Stata package and has been commissioned with 
+  package is directly associated with the 'ge_gravity' Stata package and has been commissioned with 
   the appreciated support of the UK Department for Digital, Culture, Media & Sport. 
 License: GPL-3
 Depends: 

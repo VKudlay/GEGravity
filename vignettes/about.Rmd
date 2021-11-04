@@ -177,7 +177,7 @@ Suppose the researcher wishes to use this data set to quantify general equilibri
 
 $$X_{ijt} = \exp\bigg[\ln(\alpha_{it}) + \ln(\alpha_{jt}) + \ln(\alpha_{ij}) + \beta \cdot FTA_{ijt}\bigg] + e_{ijt}$$
 
-The Stata equivalent of this package uses the ppmlhdfe command created by Correia, Guimarães, & Zylkin (2019) to achieve this. In our example, we will use the [alpaca library]( https://CRAN.R-project.org/package=alpaca) by Amrei Stammann to do the same via the `feglm` (Fixed-Effect Generalized Linear Model) function.
+The Stata equivalent of this package uses the ppmlhdfe command created by Correia, Guimarães, & Zylkin (2019) to achieve this. In our example, we will use the ['alpaca' library]( https://CRAN.R-project.org/package=alpaca) by Amrei Stammann to do the same via the `feglm` (Fixed-Effect Generalized Linear Model) function.
 
 ```{r}
 library(alpaca)  # Needed for partial coefficients
@@ -241,7 +241,7 @@ t_trade$eu_effect = t_trade$new_eu_pair * partials[1]
 ```
 
 To finalize the data for the counterfactual, we will use the year 2000 as the baseline year.
-The data we will feed to the ge_gravity command looks like this:
+The data we will feed to the 'ge_gravity' command looks like this:
 
 
 ```{r}
@@ -252,7 +252,7 @@ ge_baseline_data <- t_trade[t_trade$year == 2000,]   # In example, 1892 Entries,
 ge_baseline_data[sample(1:nrow(ge_baseline_data), 10),]  # 10 random rows
 ```
 
-Now that we have the data we need, we can run the ge_gravity function as follows:
+Now that we have the data we need, we can run the 'ge_gravity' function as follows:
 
 ```{r}
 ge_results <- ge_gravity(
