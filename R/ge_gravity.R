@@ -141,21 +141,26 @@ ge_gravity <- function(
   ################################################################
   ## Pre-Processing
   ################################################################
-
+  
   if(!is.logical(mult)) {
     # If user specifies "multiplicative" option for trade imbalances
     warning("'mult' parameter non-numeric, assumed to be false")
     mult <- FALSE
   }
-
-  # First set up the set of international trade flows matrix, X_{ij}.
-  # This is the set of flows arranged in a exporter by importer fashion.
+  
+  # First sort everything by exporter then importer
   X <- flows
-  N <- sqrt(length(X))        # Length of row or column of trade matrix
-  X <- t(matrix(flows, N, N)) # Square the matrix
+  X_order = order(exp_id,imp_id)
+  X = X[X_order]
+  beta = beta[X_order]
+  exp_id = exp_id[X_order]
+  imp_id = imp_id[X_order]
 
-  # Length of row or column of trade matrix
-  N <- sqrt(length(X))
+  # Set up the set of international trade flows matrix, X_{ij}.
+  # This is the set of flows arranged in a exporter by importer fashion.
+  N <- sqrt(length(X))        # Length of row or column of trade matrix
+  
+  X <- t(matrix(X, N, N)) # Square the matrix
 
   if (floor(N) != N) {
     # Ensure data set includes all possible flows for each location
@@ -163,7 +168,7 @@ ge_gravity <- function(
       Check whether every location has N trade partners, including itself.
       Exiting.\n")
   }
-
+  
   countNaN <- 0
   for(i in 1:length(X)) {
     if (is.nan(X[i])) {
@@ -178,7 +183,7 @@ ge_gravity <- function(
   if(countNaN > 0) {
     warning("Flow values missing for at least 1 pair; assumed to be zero.")
   }
-
+  
   countNaN <- 0
   for(i in 1:length(beta)) {
     if(is.nan(beta[i])) {
@@ -190,125 +195,133 @@ ge_gravity <- function(
   if(countNaN > 0) {
     warning("Beta values missing for at least 1 pair; assumed to be zero.\n")
   }
-
+  
   # "B" (= e^beta) is the matrix of partial effects
   B <- beta
   dim(B)  <- c(N, N) # Format B to have N columns
   B       <- t(B)    # So B has same indices as X
-
+  
   if(any(diag(B) != 0)) {
     # Flash warning if betas on the diagonal are not zero.
     warning("Non-zero beta values for some Beta terms detected. These have been set to zero.\n")
     diag(B) <- 0
   }
-
+  
   B <- exp(B)
-
+  
   # Set up Y, E, D vectors; calculate trade balances
-  E <- matrix(colSums(X),N,1) # Total National Expendatures; Value of import for all origin
+  E <- matrix(colSums(X),N,1) # Total National Expenditures; Value of import for all origin
   Y <- matrix(rowSums(X),N,1) # Total Labor Income; Value of exports for all destinations;
   D <- E - Y                  # D: National trade deficit / surplus
 
   # set up pi_ij matrix of trade shares; pi_ij = X_ij/E_j
   Pi <- X / kronecker(t(E), matrix(1,N,1))  # Bilateral trade share
-
+  
   ################################################################
   ## Setting up iterable loop
   ################################################################
-
+  
   # Initialize w_i_hat = P_j_hat = 1
   w_hat <- P_hat <- matrix(1, N, 1)    # Wi = Ei/Pi
-
+  
   # While Loop Initializations
   X_new     <- X         # Container for updated X
   crit      <- 1         # Convergence testing value
   curr_iter <- 0         # Current number of iterations
   max_iter  <- 1000000   # Maximum number of iterations
   tol       <- .00000001 # Threshold before sufficient convergence
-
+  
   # B = i x j
   # D = 1 x j
   # E = 1 x j
   # w_hat = P_hat = i x 1
   # Y = E = D = i x 1
-
+  
   repeat { # Event Loop (using repeat to simulate do-while)
-
+    
     X_last_step <- X_new
-
+    
     #### Step 1: Update w_hat_i for all origins:
     eqn_base <- ((Pi * B) %*% (E / P_hat)) / Y
     w_hat    <- eqn_base^(1/(1+theta))
-
+    
     #### Step 2: Normalize so total world output stays the same
     w_hat <- w_hat * (sum(Y) / sum(Y*w_hat))
-
+        
     #### Step 3: update P_hat_j
     P_hat <- (t(Pi) * t(B)) %*% (w_hat^(-theta))
-
+    
     #### Step 4: Update $E_j$
     if (mult) {
       E <- (Y + D) * w_hat
     } else {
       E <- Y * w_hat + D  # default is to have additive trade imbalances
     }
-
+    
     #### Calculate new trade shares (to verify convergence)
     p1 <- (Pi * B)
     p2 <- kronecker((w_hat^(-theta)), matrix(1,1,N))
     p3 <- kronecker(t(P_hat), matrix(1,N,1))
     Pi_new <- p1 * p2 / p3
-
+    
     X_new <- t(Pi_new * kronecker(t(E), matrix(1,N,1)))
-
+    
     # Compute difference to see if data converged
     crit = max(c(abs(log(X_new) - log(X_last_step))), na.rm = TRUE)
     curr_iter <- curr_iter + 1
-
+    
     if(crit <= tol || curr_iter >= max_iter)
       break
   }
-
+  
   ################################################################
   ## Post Processing
   ################################################################
-
+  
   # Post welfare effects and new trade values
   dim(X_new) <- c(N*N, 1)
-
+  
   # Real wage impact
   real_wage  <- w_hat / (P_hat)^(-1/theta)
   # real_wage <- (diag(Pi_new) / diag(Pi))^(-1/theta)  # (ACR formula)
-
+  
   # Welfare impact
   if (mult) {
     welfare <- real_wage
   } else {
     welfare <- ((Y * w_hat) + D) / (Y+D) / (P_hat)^(-1/theta)
   }
-
+  
   # Kronecker w/ this creates N dupes per dataset in column to align with X matrix
   kron_base <- matrix(1, N, 1)
-
+  
   welfare     <- kronecker(welfare, kron_base)
   real_wage   <- kronecker(real_wage, kron_base)
   nom_wage    <- kronecker(w_hat, kron_base)
-
+  
   price_index <- kronecker(((P_hat)^(-1/theta)), kron_base)
-
+  
   # Build and return the final list
   data_out <- data
-
+  
   if (length(data_out) == 0) {
     data_out$expcode <- exp_id
     data_out$impcode <- imp_id
+    data_out$new_trade   <- X_new
+    data_out$welfare     <- welfare
+    data_out$real_wage   <- real_wage
+    data_out$nom_wage    <- nom_wage
+    data_out$price_index <- price_index
   }
-
-  data_out$new_trade   <- X_new
-  data_out$welfare     <- welfare
-  data_out$real_wage   <- real_wage
-  data_out$nom_wage    <- nom_wage
-  data_out$price_index <- price_index
+  else{
+    data_out <- data_out[X_order,]
+    data_out$new_trade   <- X_new
+    data_out$welfare     <- welfare
+    data_out$real_wage   <- real_wage
+    data_out$nom_wage    <- nom_wage
+    data_out$price_index <- price_index
+    data_out <- data_out[order(X_order),]
+  }
 
   return(data.frame(data_out))
 }
